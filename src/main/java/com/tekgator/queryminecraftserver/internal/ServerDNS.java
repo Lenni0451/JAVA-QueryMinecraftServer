@@ -8,6 +8,7 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
@@ -140,4 +141,10 @@ public class ServerDNS {
             throws IllegalArgumentException {
         this.queryPort = validatePort(queryPort);
     }
+
+    public InetSocketAddress getInetSocketAddress() {
+        return new InetSocketAddress(this.hostName, this.port);
+    }
+
+
 }
