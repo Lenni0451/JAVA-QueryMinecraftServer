@@ -1,12 +1,12 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -28,45 +28,32 @@ public abstract class QueryStatusBase {
         this.timeOut = timeOut;
     }
 
-    public abstract Status getStatus() throws QueryException;
+    public abstract Status getStatus() throws SocketException, IOException;
 
     protected int calculateLatency() {
         return (int) (this.pingEnd - this.pingStart);
     }
 
-    protected void writeVarInt(
-            DataOutputStream out,
-            int paramInt)
-            throws QueryException {
-        try {
-            while (true) {
-                if ((paramInt & 0xFFFFFF80) == 0) {
-                    out.writeByte(paramInt);
-                    return;
-                }
-
-                out.writeByte(paramInt & 0x7F | 0x80);
-                paramInt >>>= 7;
+    protected void writeVarInt(DataOutputStream out, int paramInt) throws IOException {
+        while (true) {
+            if ((paramInt & 0xFFFFFF80) == 0) {
+                out.writeByte(paramInt);
+                return;
             }
-        } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.SEND_FAILED, "Failed to write VarInt to socket");
+
+            out.writeByte(paramInt & 0x7F | 0x80);
+            paramInt >>>= 7;
         }
     }
 
-    protected int readVarInt(DataInputStream in) 
-            throws QueryException {
+    protected int readVarInt(DataInputStream in) throws IOException, NumberFormatException {
         int i = 0;
         int j = 0;
         int k;
         while (true) {
-            try {
-                k = in.readByte();
-            } catch (IOException e) {
-                throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                        "Server returned invalid response!");
-            }
+            k = in.readByte();
             i |= (k & 0x7F) << j++ * 7;
-            if (j > 5) throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "VarInt too big");
+            if (j > 5) throw new NumberFormatException("VarInt too big");
             if ((k & 0x80) != 128) break;
         }
         return i;

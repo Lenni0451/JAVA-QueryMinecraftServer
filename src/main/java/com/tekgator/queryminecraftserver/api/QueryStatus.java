@@ -1,5 +1,9 @@
 package com.tekgator.queryminecraftserver.api;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
+
 import com.tekgator.queryminecraftserver.internal.QueryStatusTcp;
 import com.tekgator.queryminecraftserver.internal.QueryStatusTcpDepreciated;
 import com.tekgator.queryminecraftserver.internal.QueryStatusUdp;
@@ -16,8 +20,14 @@ public final class QueryStatus {
 
     private Status status;
 
-    private QueryStatus(Builder builder) 
-            throws QueryException {
+    /**
+     * 
+     * @param builder
+     * @throws ConnectException when not able to connect to provided hostname / ip address
+     * @throws UnknownHostException when not able to resolve provided hostname / ip address
+     * @throws Exception general exceptions
+     */
+    private QueryStatus(Builder builder) throws ConnectException, UnknownHostException, Exception {
         this.serverDNS = new ServerDNS(builder.hostName, builder.port);
         this.timeOut = builder.timeOut;
         this.protocol = builder.protocol;
@@ -28,11 +38,10 @@ public final class QueryStatus {
      * (at least if loaded already once)
      * 
      * @return Status of the Minecraft Server
-     * @throws QueryException
+     * @throws IOException
      */
-    public Status getStatus() 
-            throws QueryException {
-        
+    public Status getStatus() throws IOException {
+
         if (this.status != null)
             return this.status;
 
@@ -43,10 +52,9 @@ public final class QueryStatus {
      * Queried status of the Minecraft server
      * 
      * @return Status of the Minecraft Server
-     * @throws QueryException
+     * @throws IOException
      */
-    public Status refreshStatus() 
-            throws QueryException {
+    public Status refreshStatus() throws IOException {
         
         switch(this.protocol) {
             case TCP_DEPRECIATED:
@@ -164,8 +172,11 @@ public final class QueryStatus {
 
         /**
          * @return New instance of the QueryStatus class
+         * @throws ConnectException when not able to connect to provided hostname / ip address
+         * @throws UnknownHostException when not able to resolve provided hostname / ip address
+         * @throws Exception general exceptions
          */
-        public QueryStatus build() throws QueryException {
+        public QueryStatus build() throws ConnectException, UnknownHostException, Exception {
             return new QueryStatus(this);
         }     
     }

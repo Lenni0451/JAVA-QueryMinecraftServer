@@ -8,12 +8,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.tekgator.queryminecraftserver.api.Protocol;
-import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -86,8 +86,7 @@ public class StatusBuilder {
         return this;
     }
 
-    public Status build() 
-            throws QueryException {
+    public Status build() throws IOException {
         Status status;
         
         switch (this.protocol) {
@@ -159,8 +158,7 @@ public class StatusBuilder {
         return new Gson().fromJson(json, Status.class);
     }
 
-    private Status buildTcpJson()
-            throws QueryException {
+    private Status buildTcpJson() throws StreamCorruptedException {
 
         JsonObject json = new JsonObject();
         JsonElement jsonElem = null;
@@ -173,8 +171,7 @@ public class StatusBuilder {
 
         if (jsonElem.isJsonNull()) {
             // invalid json object received
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+            throw new StreamCorruptedException("Server returned invalid response!");
         } else if (jsonElem.isJsonPrimitive()) {
             // in case the server is just starting the data string contains only
             // a hint that is currently starting up
@@ -197,8 +194,7 @@ public class StatusBuilder {
         return new Gson().fromJson(json, Status.class);
     }
 
-    private Status buildUdpBasic ()
-            throws QueryException {
+    private Status buildUdpBasic () throws IOException {
 
         JsonObject json = new JsonObject();
 
@@ -238,8 +234,7 @@ public class StatusBuilder {
         return new Gson().fromJson(json, Status.class);
     }
 
-    private Status buildUdpFull ()
-            throws QueryException {
+    private Status buildUdpFull () throws IOException {
 
         JsonObject json = new JsonObject();
         String key;
@@ -258,13 +253,7 @@ public class StatusBuilder {
 
             if (key.isEmpty() && value.equalsIgnoreCase("player_")) {
                 byte[] streamRest = new byte[b.available()];
-
-                try {
-                    d.read(streamRest);
-                } catch (IOException e) {
-                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                            "Server returned invalid response!");
-                }
+                d.read(streamRest);
 
                 readUdpPlayers(json, new String(streamRest));
             } else {
@@ -302,9 +291,7 @@ public class StatusBuilder {
         return new Gson().fromJson(json, Status.class);
     }
 
-    private void readUdpModInfo (
-            JsonObject json,
-            String plugins) {
+    private void readUdpModInfo (JsonObject json, String plugins) {
 
         int colonPos = plugins.indexOf(":");
 
@@ -326,9 +313,7 @@ public class StatusBuilder {
         }
     }
 
-    private void readUdpPlayers(
-            JsonObject json,
-            String players) {
+    private void readUdpPlayers(JsonObject json, String players) {
 
         JsonArray jsonPlayerArray = new JsonArray();
         String playerName;
@@ -346,28 +331,20 @@ public class StatusBuilder {
         json.get(JSON_PLAYERS).getAsJsonObject().add(JSON_PLAYERS_SAMPLE, jsonPlayerArray);
     }
 
-    private String readNullTerminatedString(
-            DataInputStream dataInputStream)
-            throws QueryException {
+    private String readNullTerminatedString(DataInputStream dataInputStream) throws IOException {
 
         byte byteRead;
         byte[] tmpData;
 
-        try {
-            tmpData = new byte[dataInputStream.available()];
-            for (int i = 0; (byteRead = dataInputStream.readByte()) != 0; i++) {
-                tmpData[i] = byteRead;
-            }
-        } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+        tmpData = new byte[dataInputStream.available()];
+        for (int i = 0; (byteRead = dataInputStream.readByte()) != 0; i++) {
+            tmpData[i] = byteRead;
         }
 
         return new String(tmpData).trim();
     }
 
-    private void addHostInfoToJson (
-            JsonObject json) {
+    private void addHostInfoToJson (JsonObject json) {
         JsonObject jsonObject = new JsonObject();
 
         jsonObject.addProperty(JSON_SERVER_TARGETHOSTNAME, this.serverDNS.getTargetHostName());

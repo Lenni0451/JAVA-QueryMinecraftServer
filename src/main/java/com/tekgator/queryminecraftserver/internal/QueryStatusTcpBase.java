@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import com.tekgator.queryminecraftserver.api.QueryException;
-
 /**
  * @author Patrick Weiss <info@tekgator.com>
  */
@@ -25,27 +23,20 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
         super(serverDNS, timeOut);
     }
 
+    protected void connect() throws IOException {
+        this.socket = new Socket();
 
-    protected void connect()
-            throws QueryException {
-        try {
-            this.socket = new Socket();
+        // connect to server
+        this.socket.setSoTimeout(this.timeOut);
+        this.socket.connect(this.inetSocketAddress, this.timeOut);
 
-            // connect to server
-            this.socket.setSoTimeout(this.timeOut);
-            this.socket.connect(this.inetSocketAddress, this.timeOut);
+        // retrieve the output stream from the socket
+        this.outputStream = this.socket.getOutputStream();
+        this.dataOutputStream = new DataOutputStream(this.outputStream);
 
-            // retrieve the output stream from the socket
-            this.outputStream = this.socket.getOutputStream();
-            this.dataOutputStream = new DataOutputStream(this.outputStream);
-
-            // retrieve the input stream from the socket
-            this.inputStream = this.socket.getInputStream();
-            this.dataInputStream = new DataInputStream(this.inputStream);
-        } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM,
-                    String.format("TCP Connection to '%s:%d' failed", this.inetSocketAddress.getHostString(), this.inetSocketAddress.getPort()));
-        }
+        // retrieve the input stream from the socket
+        this.inputStream = this.socket.getInputStream();
+        this.dataInputStream = new DataInputStream(this.inputStream);
     }
 
     protected void disconnect () {
@@ -76,8 +67,8 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
         }
     }
 
-    protected abstract void sendHandShake() throws QueryException;
+    protected abstract void sendHandShake() throws IOException;
     
-    protected abstract String receiveStatusResponse() throws QueryException;
+    protected abstract String receiveStatusResponse() throws IOException;
     
 }
