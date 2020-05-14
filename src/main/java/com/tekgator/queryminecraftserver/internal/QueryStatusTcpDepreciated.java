@@ -46,8 +46,7 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
         return this.status;
     }
 
-    @Override
-    protected void sendHandShake() throws IOException {
+    private void sendHandShake() throws IOException {
 
         final ByteArrayOutputStream b = new ByteArrayOutputStream();
         final DataOutputStream handshake = new DataOutputStream(b);
@@ -71,8 +70,7 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
         dataOutputStream.flush();
     }
 
-    @Override
-    protected String receiveStatusResponse() throws IOException {
+    private String receiveStatusResponse() throws IOException {
 
         final int id = dataInputStream.readUnsignedByte();
 

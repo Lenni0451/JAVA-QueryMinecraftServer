@@ -6,11 +6,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+
+import com.tekgator.queryminecraftserver.api.Status;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
  */
-public abstract class QueryStatusTcpBase extends QueryStatusBase {
+public abstract class QueryStatusTcpBase {
+
+    protected Status status;
+
+    protected final ServerDNS serverDNS;
+    protected final int timeOut;
+
+    protected long pingStart = 0;
+    protected long pingEnd = 0;
 
     protected Socket socket = null;
     protected OutputStream outputStream;
@@ -20,15 +31,18 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
     protected DataInputStream dataInputStream;
 
     public QueryStatusTcpBase(ServerDNS serverDNS, int timeOut) {
-        super(serverDNS, timeOut);
+        this.serverDNS = serverDNS;
+        this.timeOut = timeOut;
     }
+
+    public abstract Status getStatus() throws SocketException, IOException;
 
     protected void connect() throws IOException {
         this.socket = new Socket();
 
         // connect to server
         this.socket.setSoTimeout(this.timeOut);
-        this.socket.connect(this.inetSocketAddress, this.timeOut);
+        this.socket.connect(serverDNS.getInetSocketAddress(), this.timeOut);
 
         // retrieve the output stream from the socket
         this.outputStream = this.socket.getOutputStream();
@@ -67,8 +81,33 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
         }
     }
 
-    protected abstract void sendHandShake() throws IOException;
-    
-    protected abstract String receiveStatusResponse() throws IOException;
-    
+    protected int calculateLatency() {
+        return (int) (this.pingEnd - this.pingStart);
+    }
+
+    protected void writeVarInt(DataOutputStream out, int paramInt) throws IOException {
+        while (true) {
+            if ((paramInt & 0xFFFFFF80) == 0) {
+                out.writeByte(paramInt);
+                return;
+            }
+
+            out.writeByte(paramInt & 0x7F | 0x80);
+            paramInt >>>= 7;
+        }
+    }
+
+    protected int readVarInt(DataInputStream in) throws IOException, NumberFormatException {
+        int i = 0;
+        int j = 0;
+        int k;
+        while (true) {
+            k = in.readByte();
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 5) throw new NumberFormatException("VarInt too big");
+            if ((k & 0x80) != 128) break;
+        }
+        return i;
+    }
+
 }

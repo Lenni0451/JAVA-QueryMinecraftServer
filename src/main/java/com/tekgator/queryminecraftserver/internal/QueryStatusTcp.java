@@ -69,8 +69,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
         return this.status;
     }
 
-    @Override
-    protected void sendHandShake() throws IOException {
+    private void sendHandShake() throws IOException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream handshake = new DataOutputStream(b);
 
@@ -94,8 +93,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
         this.dataOutputStream.flush();
     }
 
-    @Override
-    protected String receiveStatusResponse() throws IOException {
+    private String receiveStatusResponse() throws IOException {
 
         readVarInt(dataInputStream); //read the size of packet received from the server
         int id = readVarInt(dataInputStream); //read the packet id

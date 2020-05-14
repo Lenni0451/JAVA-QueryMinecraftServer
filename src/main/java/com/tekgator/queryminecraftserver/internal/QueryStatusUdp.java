@@ -20,7 +20,7 @@ import com.tekgator.queryminecraftserver.api.Status;
  * @author Patrick Weiss <info@tekgator.com>
  * @see https://wiki.vg/Query
  */
-public class QueryStatusUdp extends QueryStatusBase {
+public class QueryStatusUdp {
 
     private static final byte[] MAGIC_BYTES = { (byte) 0xFE, (byte) 0xFD };
     private static final byte[] MAGIC_BYTES_FULLSTAT = { (byte) 0x73, (byte) 0x70, (byte) 0x6C, (byte) 0x69,
@@ -29,18 +29,26 @@ public class QueryStatusUdp extends QueryStatusBase {
     private static final byte HANDSHAKE_BYTE = 0x9;
     private static final byte STAT_BYTE = 0x0;
 
+    private Status status;
+
+    private final ServerDNS serverDNS;
+    private final int timeOut;
+
+    private long pingStart = 0;
+    private long pingEnd = 0;
+
     private Protocol protocol;
     private int challengeToken;
     private int sessionId;
     private DatagramSocket socket;
 
     public QueryStatusUdp(Protocol protocol, ServerDNS serverDNS, int timeOut) {
-        super(serverDNS, timeOut);
+        this.serverDNS = serverDNS;
+        this.timeOut = timeOut;
         this.protocol = protocol;
         this.sessionId = (new Random().nextInt((0x7FFFFFFF - 0x1) + 1) + 0x1) & 0x0F0F0F0F;
     }
 
-    @Override
     public Status getStatus() throws IOException {
 
         try {
@@ -104,7 +112,7 @@ public class QueryStatusUdp extends QueryStatusBase {
 
         byte[] sendData = b.toByteArray();
 
-        DatagramPacket dataPacket = new DatagramPacket(sendData, sendData.length, this.inetSocketAddress);
+        DatagramPacket dataPacket = new DatagramPacket(sendData, sendData.length, this.serverDNS.getInetSocketAddress());
 
         this.pingStart = System.currentTimeMillis();
 
