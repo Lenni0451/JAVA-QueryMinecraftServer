@@ -16,6 +16,7 @@ utilize the [UT3 (or GameSpot) Query Protocol](https://wiki.vg/Query)
 - Support for newest Minecraft server version
 - **NO** requirement for plugin, RCON or to enable Query on the server, it works straight out of the box on every Minecraft server in TCP mode.
 - Retrieves online player names
+- Independent from the protocol uses a Status Class is exported with the same properties and methods or JSON code
 - [SRV record lookup](https://www.namecheap.com/support/knowledgebase/article.aspx/9765/2208/how-can-i-link-my-domain-name-to-a-minecraft-server): No need to know the exact port of the Minecraft server if a SRV record is configured
 
 ## Installing
@@ -27,7 +28,7 @@ For right now you can download the JAR in the [release](https://github.com/tekga
 <dependency>
   <groupId>com.github.tekgator</groupId>
   <artifactId>JAVA-QueryMinecraftServer</artifactId>
-  <version>1.1</version>
+  <version>1.3</version>
 </dependency>
 ```
 ```xml
@@ -42,7 +43,7 @@ For right now you can download the JAR in the [release](https://github.com/tekga
 ##### Gradle
 ```gradle
 dependencies {
-    implementation 'com.github.tekgator:JAVA-QueryMinecraftServer:1.1'
+    implementation 'com.github.tekgator:JAVA-QueryMinecraftServer:1.3'
 }
 
 repositories {
