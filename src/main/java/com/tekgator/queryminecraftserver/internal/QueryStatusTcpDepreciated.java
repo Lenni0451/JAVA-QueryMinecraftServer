@@ -1,12 +1,13 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -14,14 +15,12 @@ import com.tekgator.queryminecraftserver.api.Status;
  */
 public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
 
-    public QueryStatusTcpDepreciated(final ServerDNS serverDNS, final int timeOut) {
-        super(serverDNS, timeOut);
+    public QueryStatusTcpDepreciated(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
+        super(protocol, serverDNS, timeOut);
     }
 
     @Override
-    public Status getStatus() 
-            throws QueryException {
-        
+    public Status getStatus() throws QueryException {
         try {
             // connect to the server
             connect();
@@ -34,11 +33,11 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
 
             // finally build the status object
             this.status = new StatusBuilder()
-                                .setProtocol(Protocol.TCP_DEPRECIATED)
-                                .setLatency(calculateLatency())
-                                .setServerDNS(this.serverDNS)
-                                .setData(response)
-                                .build();
+                    .setProtocol(this.protocol)
+                    .setLatency(calculateLatency())
+                    .setServerDNS(this.serverDNS)
+                    .setData(response)
+                    .build();
         } finally {
             // disconnect from server
             disconnect();
@@ -48,26 +47,26 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
     }
 
     @Override
-    protected void sendHandShake() 
-            throws QueryException {
-
+    protected void sendHandShake() throws QueryException {
         final ByteArrayOutputStream b = new ByteArrayOutputStream();
         final DataOutputStream handshake = new DataOutputStream(b);
 
         final String mcPingStr = "MC|PingHost";
 
         try {
-            
+
             handshake.writeByte(0xFE); // packet identifier for a server list ping
             handshake.writeByte(0x01); // server list ping's payload (always 1)
-            handshake.writeByte(0xFA); // packet identifier for a plugin message
-            handshake.writeShort(mcPingStr.length()); // length of following string
-            handshake.writeBytes(new String(mcPingStr.getBytes("UTF-8"), "UTF-16BE")); // the string "MC|PingHost" encoded as a UTF-16BE string
-            handshake.writeShort(7 + (2 * this.serverDNS.getTargetHostName().length())); // length of the rest of the data, as a short. Compute as 7 + 2*len(hostname)
-            handshake.writeByte(Protocol.TCP_DEPRECIATED.getValue()); // protocol version
-            handshake.writeShort(this.serverDNS.getTargetHostName().length()); // length of the hostname
-            handshake.writeBytes(new String(this.serverDNS.getTargetHostName().getBytes("UTF-8"), "UTF-16BE")); // hostname the client is connecting to
-            handshake.writeInt(this.serverDNS.getPort()); // port the client is connecting to, as an int.
+            if (this.protocol.equals(Protocol.TCP_1_6)) {
+                handshake.writeByte(0xFA); // packet identifier for a plugin message
+                handshake.writeShort(mcPingStr.length()); // length of following string
+                handshake.writeBytes(new String(mcPingStr.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_16BE)); // the string "MC|PingHost" encoded as a UTF-16BE string
+                handshake.writeShort(7 + (2 * this.serverDNS.getTargetHostName().length())); // length of the rest of the data, as a short. Compute as 7 + 2*len(hostname)
+                handshake.writeByte(this.protocol.getProtocolId()); // protocol version
+                handshake.writeShort(this.serverDNS.getTargetHostName().length()); // length of the hostname
+                handshake.writeBytes(new String(this.serverDNS.getTargetHostName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_16BE)); // hostname the client is connecting to
+                handshake.writeInt(this.serverDNS.getPort()); // port the client is connecting to, as an int.
+            }
 
             this.pingStart = System.currentTimeMillis();
 
@@ -80,14 +79,14 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
 
     @Override
     protected String receiveStatusResponse() throws QueryException {
-        String response = "";
+        String response;
 
         try {
             int id = dataInputStream.readUnsignedByte();
 
             if (id == -1) {
                 throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, "Premature end of stream");
-            } else if  (id != 0xFF) {
+            } else if (id != 0xFF) {
                 //we want a status response
                 throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, String.format("Invalid packetID: %d", id));
             }
@@ -114,13 +113,13 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
                 throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, "Premature end of stream");
             }
 
-            response = new String((new String(byteStream, "UTF-16BE")).getBytes("UTF-8"));
+            response = new String((new String(byteStream, StandardCharsets.UTF_16BE)).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE);
         }
 
         return response;
     }
- 
-    
+
+
 }

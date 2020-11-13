@@ -19,7 +19,7 @@ public class QueryException extends Exception {
         TIMEOUT_REACHED,
     }
 
-    private ErrorType errorType;
+    private final ErrorType errorType;
 
     public QueryException() {
         super();

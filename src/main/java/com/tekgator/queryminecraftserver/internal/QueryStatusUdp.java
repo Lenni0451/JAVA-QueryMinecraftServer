@@ -1,10 +1,10 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import com.tekgator.queryminecraftserver.api.Protocol;
+import com.tekgator.queryminecraftserver.api.QueryException;
+import com.tekgator.queryminecraftserver.api.Status;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -12,10 +12,6 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Random;
-
-import com.tekgator.queryminecraftserver.api.Protocol;
-import com.tekgator.queryminecraftserver.api.QueryException;
-import com.tekgator.queryminecraftserver.api.Status;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -26,26 +22,22 @@ public class QueryStatusUdp extends QueryStatusBase {
     private static final byte[] MAGIC_BYTES = {(byte) 0xFE, (byte) 0xFD};
     private static final byte[] MAGIC_BYTES_FULLSTAT = {(byte) 0x73, (byte) 0x70, (byte) 0x6C,
             (byte) 0x69, (byte) 0x74, (byte) 0x6E, (byte) 0x75, (byte) 0x6D,
-            (byte) 0x00, (byte) 0x80, (byte) 0x00 };
+            (byte) 0x00, (byte) 0x80, (byte) 0x00};
 
     private static final byte HANDSHAKE_BYTE = 0x9;
     private static final byte STAT_BYTE = 0x0;
 
-    private Protocol protocol;
+    private final int sessionId;
     private int challengeToken;
-    private int sessionId;
     private DatagramSocket socket;
 
-    public QueryStatusUdp(Protocol protocol, ServerDNS serverDNS, int timeOut) {
-        super(serverDNS, timeOut);
-        this.protocol = protocol;
+    public QueryStatusUdp(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
+        super(protocol, serverDNS, timeOut);
         this.sessionId = (new Random().nextInt((0x7FFFFFFF - 0x1) + 1) + 0x1) & 0x0F0F0F0F;
     }
 
     @Override
-    public Status getStatus() 
-            throws QueryException {
-
+    public Status getStatus() throws QueryException {
         try {
             socket = new DatagramSocket();
             socket.setSoTimeout(this.timeOut);
@@ -58,11 +50,11 @@ public class QueryStatusUdp extends QueryStatusBase {
 
             // finally build the status object
             this.status = new StatusBuilder()
-                                .setProtocol(this.protocol)
-                                .setLatency(latency)
-                                .setServerDNS(this.serverDNS)
-                                .setData(response)
-                                .build();
+                    .setProtocol(this.protocol)
+                    .setLatency(latency)
+                    .setServerDNS(this.serverDNS)
+                    .setData(response)
+                    .build();
         } catch (IOException e) {
             throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM);
         } finally {
@@ -74,11 +66,11 @@ public class QueryStatusUdp extends QueryStatusBase {
         return this.status;
     }
 
-    private byte getMessageByte(boolean isHandshake) {
+    private byte getMessageByte(final boolean isHandshake) {
         return (isHandshake ? HANDSHAKE_BYTE : STAT_BYTE);
     }
 
-    private short getOptimalBufferSize(boolean isHandshake) {
+    private short getOptimalBufferSize(final boolean isHandshake) {
         short bufferSize = 4096; // UDP FULL
 
         if (isHandshake) {
@@ -90,9 +82,7 @@ public class QueryStatusUdp extends QueryStatusBase {
         return bufferSize;
     }
 
-    private byte[] requestData(boolean isHandshake)
-            throws QueryException {
-
+    private byte[] requestData(final boolean isHandshake) throws QueryException {
         ByteArrayOutputStream b = new ByteArrayOutputStream(128);
         DataOutputStream d = new DataOutputStream(b);
 
@@ -106,7 +96,7 @@ public class QueryStatusUdp extends QueryStatusBase {
             }
 
             if (!isHandshake && protocol == Protocol.UDP_FULL) {
-                d.write(new byte[] {0x00, 0x00, 0x00, 0x00});
+                d.write(new byte[]{0x00, 0x00, 0x00, 0x00});
             }
 
             byte[] sendData = b.toByteArray();
@@ -123,9 +113,7 @@ public class QueryStatusUdp extends QueryStatusBase {
         return receiveMessage(isHandshake);
     }
 
-    private byte[] receiveMessage(boolean isHandshake)
-            throws QueryException {
-
+    private byte[] receiveMessage(final boolean isHandshake) throws QueryException {
         byte[] dataBuffer;
 
         try {
@@ -158,7 +146,7 @@ public class QueryStatusUdp extends QueryStatusBase {
             if (!isHandshake && protocol == Protocol.UDP_FULL) {
                 byte[] fullStatCheck = new byte[MAGIC_BYTES_FULLSTAT.length];
                 d.read(fullStatCheck);
-                
+
                 // According to https://wiki.vg/Query this is now meaningless and can be ignored
                 // so in case this will cause an error later on this code can be removed
                 if (!Arrays.equals(fullStatCheck, MAGIC_BYTES_FULLSTAT)) {

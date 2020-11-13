@@ -1,12 +1,7 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
+import com.tekgator.queryminecraftserver.api.BedrockPong;
 import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
@@ -27,6 +22,7 @@ public class StatusBuilder {
     public static final String JSON_SERVER_PORT = "port";
     public static final String JSON_SERVER_QUERYPORT = "queryport";
     public static final String JSON_SERVER_LATENCY = "latency";
+    public static final String JSON_SERVER_SERVER_ID = "serverId";
 
     public static final String JSON_DESCRIPTION = "description";
     public static final String JSON_DESCRIPTION_TEXT_OBSOLETE = "text";
@@ -50,14 +46,17 @@ public class StatusBuilder {
 
     public static final String JSON_GAMETYPE = "gametype";
 
+    public static final String JSON_NINTENDO_LIMITED = "nintendoLimited";
+
     public static final String JSON_MAP = "map";
 
     public static final String JSON_FAVICON = "favicon";
 
-    
+    private static final Gson gson = new GsonBuilder().create();
+
     private Protocol protocol;
     private ServerDNS serverDNS;
-    private int latency;
+    private long latency;
     private String dataTcp;
     private byte[] dataUdp;
 
@@ -71,7 +70,7 @@ public class StatusBuilder {
         return this;
     }
 
-    public StatusBuilder setLatency(int latency) {
+    public StatusBuilder setLatency(final long latency) {
         this.latency = latency;
         return this;
     }
@@ -80,52 +79,71 @@ public class StatusBuilder {
         this.dataTcp = data;
         return this;
     }
- 
+
     public StatusBuilder setData(byte[] data) {
         this.dataUdp = data;
         return this;
     }
 
-    public Status build() 
-            throws QueryException {
+    public Status build() throws QueryException {
         Status status;
-        
+
         switch (this.protocol) {
-            case TCP_DEPRECIATED:
+            case TCP_1_2:
+            case TCP_1_3:
+                status = buildTcpLegacy();
+                break;
+            case TCP_1_6:
+            case TCP_1_5:
                 status = buildTcpDepreciatedJson();
                 break;
             case TCP:
-                status =  buildTcpJson();
+                status = buildTcpJson();
                 break;
             case UDP_BASIC:
-                status =  buildUdpBasic();
+                status = buildUdpBasic();
                 break;
             case UDP_FULL:
-                status =  buildUdpFull();
+                status = buildUdpFull();
+                break;
+            case UDP_BEDROCK:
+                status = buildUdpBedrock();
                 break;
             default:
                 status = new Status();
                 break;
-
         }
 
         return status;
     }
- 
+
+    private Status buildTcpLegacy() {
+        JsonObject json = new JsonObject();
+        JsonObject playersJson = new JsonObject();
+        json.addProperty(JSON_DESCRIPTION, this.dataTcp.split("§")[0]);
+
+        playersJson.addProperty(JSON_PLAYERS_MAX, Integer.valueOf(this.dataTcp.split("§")[2]));
+        playersJson.addProperty(JSON_PLAYERS_ONLINE, this.dataTcp.split("§")[1]);
+        json.add(JSON_PLAYERS, playersJson);
+
+        addHostInfoToJson(json);
+
+        return gson.fromJson(json, Status.class);
+    }
+
     private Status buildTcpDepreciatedJson() {
         JsonObject json = new JsonObject();
 
-        String strSplit[] = this.dataTcp.split("\0");
-    
+        String[] strSplit = this.dataTcp.split("\0");
+
         json.add(JSON_VERSION, new JsonObject());
         json.add(JSON_PLAYERS, new JsonObject());
 
-        for(int i = 0; i < strSplit.length; i++) {
+        for (int i = 0; i < strSplit.length; i++) {
             switch (i) {
                 case 1:
                     try {
-                        json.get(JSON_VERSION).getAsJsonObject().
-                                addProperty(JSON_VERSION_PROTOCOL, Integer.parseInt(strSplit[i].trim()));
+                        json.get(JSON_VERSION).getAsJsonObject().addProperty(JSON_VERSION_PROTOCOL, Integer.parseInt(strSplit[i].trim()));
                     } catch (NumberFormatException e) {
                         // invalid number, just ignore
                     }
@@ -142,8 +160,7 @@ public class StatusBuilder {
                 case 4:
                 case 5:
                     try {
-                        json.get(JSON_PLAYERS).getAsJsonObject().
-                                addProperty(i == 4 ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX, Integer.parseInt(strSplit[i].trim()));
+                        json.get(JSON_PLAYERS).getAsJsonObject().addProperty(i == 4 ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX, Integer.parseInt(strSplit[i].trim()));
                     } catch (NumberFormatException e) {
                         // invalid number, just ignore
                     }
@@ -156,25 +173,24 @@ public class StatusBuilder {
 
         addHostInfoToJson(json);
 
-        return new Gson().fromJson(json, Status.class);
+        return gson.fromJson(json, Status.class);
     }
 
     private Status buildTcpJson()
             throws QueryException {
 
         JsonObject json = new JsonObject();
-        JsonElement jsonElem = null;
-        
+        JsonElement jsonElem;
+
         try {
             jsonElem = JsonParser.parseString(this.dataTcp);
         } catch (JsonSyntaxException e) {
-            jsonElem =  JsonNull.INSTANCE;
+            jsonElem = JsonNull.INSTANCE;
         }
 
         if (jsonElem.isJsonNull()) {
             // invalid json object received
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
         } else if (jsonElem.isJsonPrimitive()) {
             // in case the server is just starting the data string contains only
             // a hint that is currently starting up
@@ -183,23 +199,19 @@ public class StatusBuilder {
             json = jsonElem.getAsJsonObject();
         }
 
-        if (json.has(JSON_DESCRIPTION) &&
-                json.get(JSON_DESCRIPTION).isJsonObject() &&
-                json.get(JSON_DESCRIPTION).getAsJsonObject().has(JSON_DESCRIPTION_TEXT_OBSOLETE)) {
+        if (json.has(JSON_DESCRIPTION) && json.get(JSON_DESCRIPTION).isJsonObject() && json.get(JSON_DESCRIPTION).getAsJsonObject().has(JSON_DESCRIPTION_TEXT_OBSOLETE)) {
             // BUGFIX: some servers don't return the description straight, therefore fix it here
             jsonElem = json.get(JSON_DESCRIPTION).getAsJsonObject().get(JSON_DESCRIPTION_TEXT_OBSOLETE);
             json.remove(JSON_DESCRIPTION);
             json.addProperty(JSON_DESCRIPTION, jsonElem.getAsString());
         }
-        
+
         addHostInfoToJson(json);
 
-        return new Gson().fromJson(json, Status.class);
+        return gson.fromJson(json, Status.class);
     }
 
-    private Status buildUdpBasic ()
-            throws QueryException {
-
+    private Status buildUdpBasic() throws QueryException {
         JsonObject json = new JsonObject();
 
         ByteArrayInputStream b = new ByteArrayInputStream(this.dataUdp);
@@ -222,8 +234,7 @@ public class StatusBuilder {
                 case 4:
                 case 5:
                     try {
-                        json.get(JSON_PLAYERS).getAsJsonObject().
-                                addProperty(i == 4 ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX, Integer.parseInt(readNullTerminatedString(d)));
+                        json.get(JSON_PLAYERS).getAsJsonObject().addProperty(i == 4 ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX, Integer.parseInt(readNullTerminatedString(d)));
                     } catch (NumberFormatException e) {
                         // invalid number, just ignore
                     }
@@ -235,12 +246,10 @@ public class StatusBuilder {
 
         addHostInfoToJson(json);
 
-        return new Gson().fromJson(json, Status.class);
+        return gson.fromJson(json, Status.class);
     }
 
-    private Status buildUdpFull ()
-            throws QueryException {
-
+    private Status buildUdpFull() throws QueryException {
         JsonObject json = new JsonObject();
         String key;
         String value;
@@ -252,7 +261,7 @@ public class StatusBuilder {
         json.add(JSON_PLAYERS, new JsonObject());
         json.add(JSON_MODINFO, new JsonObject());
 
-        while(b.available() > 0) {
+        while (b.available() > 0) {
             key = readNullTerminatedString(d);
             value = readNullTerminatedString(d);
 
@@ -262,8 +271,7 @@ public class StatusBuilder {
                 try {
                     d.read(streamRest);
                 } catch (IOException e) {
-                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                            "Server returned invalid response!");
+                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
                 }
 
                 readUdpPlayers(json, new String(streamRest));
@@ -281,9 +289,7 @@ public class StatusBuilder {
                 } else if (key.equalsIgnoreCase("numplayers") ||
                         key.equalsIgnoreCase("maxplayers")) {
                     try {
-                        json.get(JSON_PLAYERS).getAsJsonObject().
-                                addProperty(key.equalsIgnoreCase("numplayers") ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX,
-                                        Integer.parseInt(value));
+                        json.get(JSON_PLAYERS).getAsJsonObject().addProperty(key.equalsIgnoreCase("numplayers") ? JSON_PLAYERS_ONLINE : JSON_PLAYERS_MAX, Integer.parseInt(value));
                     } catch (NumberFormatException e) {
                         // invalid number, just ignore
                     }
@@ -299,26 +305,21 @@ public class StatusBuilder {
 
         addHostInfoToJson(json);
 
-        return new Gson().fromJson(json, Status.class);
+        return gson.fromJson(json, Status.class);
     }
 
-    private void readUdpModInfo (
-            JsonObject json,
-            String plugins) {
-
+    private void readUdpModInfo(final JsonObject json, String plugins) {
         int colonPos = plugins.indexOf(":");
 
         if (colonPos > 0) {
             json.get(JSON_MODINFO).getAsJsonObject().addProperty(JSON_MODINFO_TYPE, plugins.substring(0, colonPos).trim());
             plugins = plugins.substring(colonPos + 1).trim();
 
-            String splitStr[] = new String(plugins).split(";");
-
             JsonArray jsonModArray = new JsonArray();
 
-            for (int i = 0; i < splitStr.length; i++) {
+            for (String s : plugins.split(";")) {
                 JsonObject jsonMod = new JsonObject();
-                jsonMod.addProperty(JSON_MODINFO_MODLIST_MODID, splitStr[i].trim());
+                jsonMod.addProperty(JSON_MODINFO_MODLIST_MODID, s.trim());
                 jsonModArray.add(jsonMod);
             }
 
@@ -326,16 +327,12 @@ public class StatusBuilder {
         }
     }
 
-    private void readUdpPlayers(
-            JsonObject json,
-            String players) {
-
+    private void readUdpPlayers(final JsonObject json, final String players) {
         JsonArray jsonPlayerArray = new JsonArray();
         String playerName;
 
-        String splitStr[] = new String(players).split("\0");
-        for (int i = 0; i < splitStr.length; i++) {
-            playerName = splitStr[i].trim();
+        for (String s : players.split("\0")) {
+            playerName = s.trim();
             if (playerName.length() > 0) {
                 JsonObject jsonPlayer = new JsonObject();
                 jsonPlayer.addProperty(JSON_PLAYERS_SAMPLE_NAME, playerName);
@@ -346,10 +343,40 @@ public class StatusBuilder {
         json.get(JSON_PLAYERS).getAsJsonObject().add(JSON_PLAYERS_SAMPLE, jsonPlayerArray);
     }
 
-    private String readNullTerminatedString(
-            DataInputStream dataInputStream)
-            throws QueryException {
+    private Status buildUdpBedrock() {
+        BedrockPong pong = BedrockPong.fromRakNet(this.dataUdp);
+        JsonObject json = new JsonObject();
 
+        json.addProperty(JSON_DESCRIPTION, pong.getMotd() + "\n" + pong.getSubMotd());
+        json.addProperty(JSON_GAMETYPE, pong.getGameType());
+        json.addProperty(JSON_NINTENDO_LIMITED, pong.isNintendoLimited());
+        {
+            JsonObject versionJson = new JsonObject();
+            versionJson.addProperty(JSON_VERSION_NAME, pong.getEdition() + " " + pong.getVersion());
+            versionJson.addProperty(JSON_VERSION_PROTOCOL, pong.getProtocolVersion());
+
+            json.add(JSON_VERSION, versionJson);
+        }
+        {
+            JsonObject playersJson = new JsonObject();
+            playersJson.addProperty(JSON_PLAYERS_MAX, pong.getMaximumPlayerCount());
+            playersJson.addProperty(JSON_PLAYERS_ONLINE, pong.getPlayerCount());
+
+            json.add(JSON_PLAYERS, playersJson);
+        }
+        {
+            JsonObject serverJson = new JsonObject();
+            serverJson.addProperty(JSON_SERVER_SERVER_ID, pong.getServerId());
+
+            json.add(JSON_SERVER, serverJson);
+        }
+
+        addHostInfoToJson(json);
+
+        return gson.fromJson(json, Status.class);
+    }
+
+    private String readNullTerminatedString(final DataInputStream dataInputStream) throws QueryException {
         byte byteRead;
         byte[] tmpData;
 
@@ -359,16 +386,14 @@ public class StatusBuilder {
                 tmpData[i] = byteRead;
             }
         } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
         }
 
         return new String(tmpData).trim();
     }
 
-    private void addHostInfoToJson (
-            JsonObject json) {
-        JsonObject jsonObject = new JsonObject();
+    private void addHostInfoToJson(final JsonObject json) {
+        JsonObject jsonObject = (json.has(JSON_SERVER) ? json.getAsJsonObject(JSON_SERVER) : new JsonObject());
 
         jsonObject.addProperty(JSON_SERVER_TARGETHOSTNAME, this.serverDNS.getTargetHostName());
         jsonObject.addProperty(JSON_SERVER_HOSTNAME, this.serverDNS.getHostName());
@@ -379,7 +404,6 @@ public class StatusBuilder {
 
         json.add(JSON_SERVER, jsonObject);
     }
-
 
 }
 

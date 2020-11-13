@@ -6,6 +6,7 @@ import com.google.gson.Gson;
  * @author Patrick Weiss <info@tekgator.com>
  */
 public class Status {
+
     private Server server;
     private Version version;
     private Players players;
@@ -14,6 +15,7 @@ public class Status {
     private Mods modinfo;
     private String gametype;
     private String map;
+    private boolean nintendoLimited; //Bedrock only
 
     public Server getServer() {
         return server;
@@ -38,7 +40,7 @@ public class Status {
     public String getFavIconStripped() {
         try {
             return favicon.replace("data:image/png;base64,", "");
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -48,13 +50,19 @@ public class Status {
         return modinfo;
     }
 
-    public class Server {
+    public boolean isNintendoLimited() {
+        return this.nintendoLimited;
+    }
+
+    public static class Server {
+
         private String targethostname;
         private String hostname;
         private String ipaddress;
         private int port;
         private int queryport;
         private int latency;
+        private long serverId;
 
         public String getTargetHostName() {
             return targethostname;
@@ -79,9 +87,15 @@ public class Status {
         public String getIpAddress() {
             return ipaddress;
         }
+
+        public long getServerId() {
+            return this.serverId;
+        }
+
     }
 
-    public class Version {
+    public static class Version {
+
         private String name;
         private int protocol;
 
@@ -92,9 +106,11 @@ public class Status {
         public int getProtocol() {
             return protocol;
         }
+
     }
 
-    public class Players {
+    public static class Players {
+
         private int max;
         private int online;
         private Player[] sample;
@@ -111,7 +127,7 @@ public class Status {
             return sample;
         }
 
-        public class Player {
+        public static class Player {
             private String name;
             private String id;
 
@@ -123,9 +139,11 @@ public class Status {
                 return id;
             }
         }
+
     }
 
-    public class Mods {
+    public static class Mods {
+
         private String type;
         private Mod[] modList;
 
@@ -137,7 +155,7 @@ public class Status {
             return modList;
         }
 
-        public class Mod {
+        public static class Mod {
             private String modid;
             private String version;
 
@@ -149,6 +167,7 @@ public class Status {
                 return modid;
             }
         }
+
     }
 
     public String getMap() {
@@ -162,4 +181,5 @@ public class Status {
     public String toJson() {
         return new Gson().toJson(this);
     }
+
 }

@@ -1,11 +1,10 @@
 package com.tekgator.queryminecraftserver;
 
-import static org.junit.Assert.assertTrue;
-
 import com.tekgator.queryminecraftserver.api.QueryStatus;
-
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class AppTest {
 
@@ -59,7 +58,7 @@ public class AppTest {
         try {
             System.out.println("-------------------------------------------------------------");
             System.out.println(new QueryStatus.Builder("69.175.124.74")
-                                        .setProtocolTcpDepreciated() // Currently MegaCraft (69.175.124.74) still on 1.5.1
+                                        .setProtocolTcp1_6() // Currently MegaCraft (69.175.124.74) still on 1.5.1
                                         .build()
                                         .refreshStatus()
                                         .toJson());
@@ -79,7 +78,7 @@ public class AppTest {
         
         try {
             queryStatus = new QueryStatus.Builder("69.175.124.74") 
-                                .setProtocolTcpDepreciated() // Currently MegaCraft (69.175.124.74) still on 1.5.1
+                                .setProtocolTcp1_6() // Currently MegaCraft (69.175.124.74) still on 1.5.1
                                 .build();
 
             for (int i = 1; i <= mMultiCnt; i++) {

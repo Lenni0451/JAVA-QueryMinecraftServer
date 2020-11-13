@@ -1,13 +1,10 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
+import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
+
+import java.io.*;
+import java.net.Socket;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -21,13 +18,11 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
     protected InputStream inputStream;
     protected DataInputStream dataInputStream;
 
-    public QueryStatusTcpBase(ServerDNS serverDNS, int timeOut) {
-        super(serverDNS, timeOut);
+    public QueryStatusTcpBase(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
+        super(protocol, serverDNS, timeOut);
     }
 
-
-    protected void connect()
-            throws QueryException {
+    protected void connect() throws QueryException {
         try {
             this.socket = new Socket();
 
@@ -43,18 +38,17 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
             this.inputStream = this.socket.getInputStream();
             this.dataInputStream = new DataInputStream(this.inputStream);
         } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM,
-                    String.format("TCP Connection to '%s:%d' failed", this.inetSocketAddress.getHostString(), this.inetSocketAddress.getPort()));
+            throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, String.format("TCP Connection to '%s:%d' failed", this.inetSocketAddress.getHostString(), this.inetSocketAddress.getPort()));
         }
     }
 
-    protected void disconnect () {
+    protected void disconnect() {
         try {
             // close all streams and socket connection to server
             if (this.dataOutputStream != null)
                 this.dataOutputStream.close();
 
-            if (this.outputStream != null) 
+            if (this.outputStream != null)
                 this.outputStream.close();
 
             if (this.dataInputStream != null)
@@ -77,7 +71,7 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
     }
 
     protected abstract void sendHandShake() throws QueryException;
-    
+
     protected abstract String receiveStatusResponse() throws QueryException;
-    
+
 }

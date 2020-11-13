@@ -1,13 +1,7 @@
 package com.tekgator.queryminecraftserver.internal;
 
 import com.tekgator.queryminecraftserver.api.QueryException;
-
-import org.xbill.DNS.ARecord;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.SRVRecord;
-import org.xbill.DNS.TextParseException;
-import org.xbill.DNS.Type;
+import org.xbill.DNS.*;
 
 import java.util.regex.Pattern;
 
@@ -17,8 +11,7 @@ import java.util.regex.Pattern;
  */
 public class ServerDNS {
 
-    private static final String IP4_PATTERN =
-            "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final String IP4_PATTERN = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
     private static final int DEFAULT_PORT = 25565;
     private static final String SRV_STR = "_minecraft._tcp.";
@@ -29,30 +22,28 @@ public class ServerDNS {
     private int port = 0;
     private int queryPort = 0;
 
-    public ServerDNS(String hostName, int port) throws
-            QueryException {
+    private ServerDNS() {
+    }
+
+    public ServerDNS(final String hostName, final int port) throws QueryException {
         resolve(hostName, port);
     }
 
-    public ServerDNS(String hostName) throws
-            QueryException {
+    public ServerDNS(final String hostName) throws QueryException {
         resolve(hostName, 0);
     }
 
-    private void resolve(String hostName, int port)
-            throws QueryException {
-
+    private void resolve(final String hostName, final int port) throws QueryException {
         this.targetHostName = hostName;
         this.hostName = this.targetHostName;
         this.port = port;
 
-        if (!Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() &&
-                this.port == 0) {
+        if (!Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() && this.port == 0) {
             // input is an hostname, but no port submitted, try to resolve via SRV record
             try {
                 SRVRecord srvRecord = (SRVRecord) lookupRecord(SRV_STR + hostName, Type.SRV);
 
-                this.targetHostName = srvRecord.getTarget().toString().replaceFirst("\\.$","");
+                this.targetHostName = srvRecord.getTarget().toString().replaceFirst("\\.$", "");
                 this.port = srvRecord.getPort();
             } catch (QueryException e) {
                 // no SRV record found at the moment, just continue
@@ -75,18 +66,15 @@ public class ServerDNS {
         setQueryPort(this.port); // this will raise an exception in case the supplied port is out of range
     }
 
-    private Record lookupRecord(String hostName, int type)
-            throws QueryException {
-
+    private Record lookupRecord(final String hostName, final int type) throws QueryException {
         Record record;
         Lookup lookup;
         int result;
 
         try {
             lookup = new Lookup(hostName, type);
-        } catch (TextParseException e) {           
-            throw new QueryException(QueryException.ErrorType.HOST_NOT_FOUND,
-                    String.format("Host '%s' parsing error:%s", hostName, e.getMessage()));
+        } catch (TextParseException e) {
+            throw new QueryException(QueryException.ErrorType.HOST_NOT_FOUND, String.format("Host '%s' parsing error:%s", hostName, e.getMessage()));
         }
 
         lookup.run();
@@ -98,16 +86,13 @@ public class ServerDNS {
         } else {
             switch (result) {
                 case Lookup.HOST_NOT_FOUND:
-                    throw new QueryException(QueryException.ErrorType.HOST_NOT_FOUND,
-                            String.format("Host '%s' not found", hostName));
+                    throw new QueryException(QueryException.ErrorType.HOST_NOT_FOUND, String.format("Host '%s' not found", hostName));
                 case Lookup.TYPE_NOT_FOUND:
                     throw new QueryException(String.format("Host '%s' not found (no A record)", hostName));
                 case Lookup.UNRECOVERABLE:
-                    throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM,
-                            String.format("Cannot lookup host '%s'", hostName));
+                    throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, String.format("Cannot lookup host '%s'", hostName));
                 case Lookup.TRY_AGAIN:
-                    throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM,
-                            String.format("Temporary failure to lookup host '%s'", hostName));
+                    throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, String.format("Temporary failure to lookup host '%s'", hostName));
                 default:
                     throw new QueryException(String.format("Unknown error %d in host lookup of '%s'", result, hostName));
             }
@@ -116,8 +101,7 @@ public class ServerDNS {
         return record;
     }
 
-    private int validatePort(int port)
-            throws IllegalArgumentException {
+    private int validatePort(final int port) throws IllegalArgumentException {
         if (port == 0 || port > Math.pow(2, 16) - 1) {
             throw new IllegalArgumentException(String.format("Port is out of valid range: %d", port));
         }
@@ -140,8 +124,7 @@ public class ServerDNS {
         return this.port;
     }
 
-    public void setPort(int port)
-            throws IllegalArgumentException {
+    public void setPort(final int port) throws IllegalArgumentException {
         this.port = validatePort(port);
     }
 
@@ -149,8 +132,56 @@ public class ServerDNS {
         return this.queryPort;
     }
 
-    public void setQueryPort(int queryPort)
-            throws IllegalArgumentException {
+    public void setQueryPort(final int queryPort) throws IllegalArgumentException {
         this.queryPort = validatePort(queryPort);
     }
+
+
+    public static class NoResolveServerDNS extends ServerDNS {
+
+        private final String hostName;
+        private int port;
+
+        public NoResolveServerDNS(final String hostName, final int port) {
+            this.hostName = hostName;
+            this.port = port;
+        }
+
+        public NoResolveServerDNS(final String hostName) {
+            if (hostName.split(":").length == 2) {
+                this.hostName = hostName.split(":")[0];
+                this.port = Integer.parseInt(hostName.split(":")[1]);
+            } else {
+                this.hostName = hostName;
+                this.port = 25565;
+            }
+        }
+
+        @Override
+        public String getTargetHostName() {
+            return this.hostName;
+        }
+
+        @Override
+        public String getHostName() {
+            return this.hostName;
+        }
+
+        @Override
+        public String getIpAddress() {
+            return super.getIpAddress();
+        }
+
+        @Override
+        public int getPort() {
+            return this.port;
+        }
+
+        @Override
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+    }
+
 }

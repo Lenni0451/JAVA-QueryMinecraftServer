@@ -1,12 +1,12 @@
 package com.tekgator.queryminecraftserver.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -14,18 +14,15 @@ import com.tekgator.queryminecraftserver.api.Status;
  */
 public class QueryStatusTcp extends QueryStatusTcpBase {
 
-    public QueryStatusTcp(ServerDNS serverDNS, int timeOut) {
-        super(serverDNS, timeOut);
+    public QueryStatusTcp(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
+        super(protocol, serverDNS, timeOut);
     }
 
     @Override
-    public Status getStatus() 
-            throws QueryException {
-       
+    public Status getStatus() throws QueryException {
         try {
             // connect to server
             connect();
-
 
             // send handshake
             sendHandShake();
@@ -48,21 +45,18 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
                 if (pingStart == pingStartReceived) {
                     this.pingStart = pingStart;
                     this.pingEnd = pingEnd;
-                } else {
-                    //Time received is different from time sent continue
-                    // anyways as this is only for calculating the ping
                 }
             } catch (QueryException e) {
                 // nothing to do, use the already set time during handshake handling
             }
-            
+
             // finally build the status object
             this.status = new StatusBuilder()
-                                .setProtocol(Protocol.TCP)
-                                .setLatency(calculateLatency())
-                                .setServerDNS(this.serverDNS)
-                                .setData(response)
-                                .build();
+                    .setProtocol(this.protocol)
+                    .setLatency(calculateLatency())
+                    .setServerDNS(this.serverDNS)
+                    .setData(response)
+                    .build();
         } finally {
             // disconnect from server
             disconnect();
@@ -72,15 +66,13 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
     }
 
     @Override
-    protected void sendHandShake()
-            throws QueryException {
-
+    protected void sendHandShake() throws QueryException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream handshake = new DataOutputStream(b);
 
         try {
             handshake.writeByte(0x00);
-            writeVarInt(handshake, Protocol.TCP.getValue()); //protocol version
+            writeVarInt(handshake, Protocol.TCP.getProtocolId()); //protocol version
             writeVarInt(handshake, this.serverDNS.getTargetHostName().length()); // hostname length
             handshake.writeBytes(this.serverDNS.getTargetHostName()); //hostname
             handshake.writeShort(this.serverDNS.getPort()); //port
@@ -96,8 +88,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
         }
     }
 
-    private void sendStatusRequest()
-            throws QueryException {
+    private void sendStatusRequest() throws QueryException {
         try {
             this.dataOutputStream.writeByte(0x01); //prepend size
             this.dataOutputStream.writeByte(0x00); //packet id for status request
@@ -108,9 +99,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
     }
 
     @Override
-    protected String receiveStatusResponse() 
-            throws QueryException {
-
+    protected String receiveStatusResponse() throws QueryException {
         readVarInt(dataInputStream); //read the size of packet received from the server
         int id = readVarInt(dataInputStream); //read the packet id
 
@@ -141,12 +130,11 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
             throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
                     "Server returned invalid response!");
         }
-        
+
         return new String(byteStream);
     }
 
-    private void sendPingRequest(long time)
-            throws QueryException {
+    private void sendPingRequest(final long time) throws QueryException {
         try {
             this.dataOutputStream.writeByte(0x09); //size of packet
             this.dataOutputStream.writeByte(0x01); //0x01 for ping
@@ -157,9 +145,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
         }
     }
 
-    private long receivePingResponse()
-            throws QueryException {
-
+    private long receivePingResponse() throws QueryException {
         long timeSent;
 
         readVarInt(dataInputStream);
@@ -179,6 +165,5 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
 
         return timeSent;
     }
-
 
 }
