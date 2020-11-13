@@ -17,6 +17,7 @@ utilize the [UT3 (or GameSpot) Query Protocol](https://wiki.vg/Query)
 - **NO** requirement for plugin, RCON or to enable Query on the server, it works straight out of the box on every Minecraft server in TCP mode.
 - Retrieves online player names
 - [SRV record lookup](https://www.namecheap.com/support/knowledgebase/article.aspx/9765/2208/how-can-i-link-my-domain-name-to-a-minecraft-server): No need to know the exact port of the Minecraft server if a SRV record is configured
+- Support every Minecraft Version to date which has pinging
 
 ## Installing
 
@@ -63,9 +64,13 @@ If UDP is used please **NOTE** that [UDP query](https://wiki.vg/Query) needs to 
 - *Port:* if not provided the library is doing a SRV record lookup]. If still nothing is found the default MC server port 25565 is used
 - *Protocol:*
   - *TCP:* This is the default protocol to query the MC server and will work with any version >= 1.7
-  - *TCP_DEPRECIATED:* Same as above for MC server version <= 1.6, less information will be provided
+  - *TCP_1_6:* Same as above for MC server version 1.6.4 - 1.6.0, less information will be provided
+  - *TCP_1_5:* Same as above for MC server version 1.5.2 - 1.4.0
+  - *TCP_1_3:* Same as above for MC server version 1.3.2 - 1.3.1
+  - *TCP_1_2:* Same as above for MC server version 1.2.5 - b1.8
   - *UDP_FULL:* Provides most information about a the server e.g. including a mod list, but needs UDP query activated
   - *UDP_BASIC:* Same as above but with less information
+  - *UDP_BEDROCK* Ping Bedrock edition servers and get all information
 - *Timeout:* Default is a 1000ms timeout for the conenction. If it happens to be a slow MC server this might need to be increased.
 
 ### Coding
@@ -99,6 +104,7 @@ System.out.println(new QueryStatus.Builder("my-mcserver.com")
 - *PlayerOnline*: Count of current players on the server
 - *Players*: Array of players on the server with name and UUID (for TCP: only a sample is returned from the server, most likly around 10 - 15 players) 
 - *ModInfo*: In case of a Spigot / Forge server a mod list maybe returned
+- *NintendoLimited*: Unknown (Maybe indicating nintendo server?)
 
 Via the ```toJson() ``` all the server information can also be exported to a JSON string.
 
@@ -108,7 +114,7 @@ This project requires Java 8+.
 All dependencies are managed automatically by Maven.
 
 - Junit
-  - Version: 4.11
+  - Version: 4.13.1
   - [Github](https://github.com/junit-team/junit5/)
   - [Maven central](https://search.maven.org/artifact/junit/junit/4.11/jar)
 
