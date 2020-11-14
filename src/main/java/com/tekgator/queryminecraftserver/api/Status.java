@@ -54,6 +54,18 @@ public class Status {
         return this.nintendoLimited;
     }
 
+    public String getMap() {
+        return map;
+    }
+
+    public String getGameType() {
+        return gametype;
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
+
     public static class Server {
 
         private String targethostname;
@@ -168,18 +180,6 @@ public class Status {
             }
         }
 
-    }
-
-    public String getMap() {
-        return map;
-    }
-
-    public String getGameType() {
-        return gametype;
-    }
-
-    public String toJson() {
-        return new Gson().toJson(this);
     }
 
 }

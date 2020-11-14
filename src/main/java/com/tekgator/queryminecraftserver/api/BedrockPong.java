@@ -18,6 +18,9 @@ public class BedrockPong {
     private int ipv6Port = -1;
     private String[] extras; //Unknown
 
+    public BedrockPong() {
+    }
+
     public static BedrockPong fromRakNet(byte[] userData) {
         String info = new String(userData, StandardCharsets.UTF_8);
         BedrockPong bedrockPong = new BedrockPong();
@@ -73,99 +76,96 @@ public class BedrockPong {
         }
     }
 
-    public BedrockPong() {
-    }
-
     public String getEdition() {
         return this.edition;
-    }
-
-    public String getMotd() {
-        return this.motd;
-    }
-
-    public int getProtocolVersion() {
-        return this.protocolVersion;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public int getPlayerCount() {
-        return this.playerCount;
-    }
-
-    public int getMaximumPlayerCount() {
-        return this.maximumPlayerCount;
-    }
-
-    public String getSubMotd() {
-        return this.subMotd;
-    }
-
-    public String getGameType() {
-        return this.gameType;
-    }
-
-    public boolean isNintendoLimited() {
-        return this.nintendoLimited;
-    }
-
-    public int getIpv4Port() {
-        return this.ipv4Port;
-    }
-
-    public int getIpv6Port() {
-        return this.ipv6Port;
-    }
-
-    public String[] getExtras() {
-        return this.extras;
     }
 
     public void setEdition(String edition) {
         this.edition = edition;
     }
 
+    public String getMotd() {
+        return this.motd;
+    }
+
     public void setMotd(String motd) {
         this.motd = motd;
+    }
+
+    public int getProtocolVersion() {
+        return this.protocolVersion;
     }
 
     public void setProtocolVersion(int protocolVersion) {
         this.protocolVersion = protocolVersion;
     }
 
+    public String getVersion() {
+        return this.version;
+    }
+
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public int getPlayerCount() {
+        return this.playerCount;
     }
 
     public void setPlayerCount(int playerCount) {
         this.playerCount = playerCount;
     }
 
+    public int getMaximumPlayerCount() {
+        return this.maximumPlayerCount;
+    }
+
     public void setMaximumPlayerCount(int maximumPlayerCount) {
         this.maximumPlayerCount = maximumPlayerCount;
+    }
+
+    public String getSubMotd() {
+        return this.subMotd;
     }
 
     public void setSubMotd(String subMotd) {
         this.subMotd = subMotd;
     }
 
+    public String getGameType() {
+        return this.gameType;
+    }
+
     public void setGameType(String gameType) {
         this.gameType = gameType;
+    }
+
+    public boolean isNintendoLimited() {
+        return this.nintendoLimited;
     }
 
     public void setNintendoLimited(boolean nintendoLimited) {
         this.nintendoLimited = nintendoLimited;
     }
 
+    public int getIpv4Port() {
+        return this.ipv4Port;
+    }
+
     public void setIpv4Port(int ipv4Port) {
         this.ipv4Port = ipv4Port;
     }
 
+    public int getIpv6Port() {
+        return this.ipv6Port;
+    }
+
     public void setIpv6Port(int ipv6Port) {
         this.ipv6Port = ipv6Port;
+    }
+
+    public String[] getExtras() {
+        return this.extras;
     }
 
     public void setExtras(String[] extras) {
