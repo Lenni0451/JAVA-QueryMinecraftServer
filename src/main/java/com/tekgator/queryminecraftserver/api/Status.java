@@ -2,6 +2,8 @@ package com.tekgator.queryminecraftserver.api;
 
 import com.google.gson.Gson;
 
+import java.util.Arrays;
+
 /**
  * @author Patrick Weiss <info@tekgator.com>
  */
@@ -66,6 +68,22 @@ public class Status {
         return new Gson().toJson(this);
     }
 
+    @Override
+    public String toString() {
+        return "Status{" +
+                "server=" + server +
+                ", version=" + version +
+                ", players=" + players +
+                ", description='" + description + '\'' +
+                ", favicon='" + favicon + '\'' +
+                ", modinfo=" + modinfo +
+                ", gametype='" + gametype + '\'' +
+                ", map='" + map + '\'' +
+                ", nintendoLimited=" + nintendoLimited +
+                '}';
+    }
+
+
     public static class Server {
 
         private String targethostname;
@@ -104,6 +122,19 @@ public class Status {
             return this.serverId;
         }
 
+        @Override
+        public String toString() {
+            return "Server{" +
+                    "targethostname='" + targethostname + '\'' +
+                    ", hostname='" + hostname + '\'' +
+                    ", ipaddress='" + ipaddress + '\'' +
+                    ", port=" + port +
+                    ", queryport=" + queryport +
+                    ", latency=" + latency +
+                    ", serverId=" + serverId +
+                    '}';
+        }
+
     }
 
     public static class Version {
@@ -117,6 +148,14 @@ public class Status {
 
         public int getProtocol() {
             return protocol;
+        }
+
+        @Override
+        public String toString() {
+            return "Version{" +
+                    "name='" + name + '\'' +
+                    ", protocol=" + protocol +
+                    '}';
         }
 
     }
@@ -152,6 +191,15 @@ public class Status {
             }
         }
 
+        @Override
+        public String toString() {
+            return "Players{" +
+                    "max=" + max +
+                    ", online=" + online +
+                    ", sample=" + Arrays.toString(sample) +
+                    '}';
+        }
+
     }
 
     public static class Mods {
@@ -178,6 +226,14 @@ public class Status {
             public String getModID() {
                 return modid;
             }
+        }
+
+        @Override
+        public String toString() {
+            return "Mods{" +
+                    "type='" + type + '\'' +
+                    ", modList=" + Arrays.toString(modList) +
+                    '}';
         }
 
     }
