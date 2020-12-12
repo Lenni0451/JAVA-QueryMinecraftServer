@@ -176,9 +176,7 @@ public class StatusBuilder {
         return gson.fromJson(json, Status.class);
     }
 
-    private Status buildTcpJson()
-            throws QueryException {
-
+    private Status buildTcpJson() throws QueryException {
         JsonObject json = new JsonObject();
         JsonElement jsonElem;
 
