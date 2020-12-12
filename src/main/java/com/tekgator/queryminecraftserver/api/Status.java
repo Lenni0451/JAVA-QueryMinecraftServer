@@ -179,6 +179,7 @@ public class Status {
         }
 
         public static class Player {
+
             private String name;
             private String id;
 
@@ -189,6 +190,15 @@ public class Status {
             public String getID() {
                 return id;
             }
+
+            @Override
+            public String toString() {
+                return "Player{" +
+                        "name='" + name + '\'' +
+                        ", id='" + id + '\'' +
+                        '}';
+            }
+
         }
 
         @Override
@@ -216,6 +226,7 @@ public class Status {
         }
 
         public static class Mod {
+
             private String modid;
             private String version;
 
@@ -226,6 +237,15 @@ public class Status {
             public String getModID() {
                 return modid;
             }
+
+            @Override
+            public String toString() {
+                return "Mod{" +
+                        "modid='" + modid + '\'' +
+                        ", version='" + version + '\'' +
+                        '}';
+            }
+
         }
 
         @Override
