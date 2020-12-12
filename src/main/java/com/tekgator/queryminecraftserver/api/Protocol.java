@@ -5,7 +5,7 @@ package com.tekgator.queryminecraftserver.api;
  */
 public enum Protocol {
 
-    TCP(47),                // query via TCP for every Minecraft version starting at 1.7.0 and above
+    TCP(5),                // query via TCP for every Minecraft version starting at 1.7.0 and above
     TCP_1_6(74),            // query via TCP for every Minecraft version 1.6.4 - 1.6.0
     TCP_1_5(61),            // query via TCP for every Minecraft version 1.5.2 - 1.4.0
     TCP_1_3(39),            // query via TCP for every Minecraft version 1.3.2 - 1.3.1
