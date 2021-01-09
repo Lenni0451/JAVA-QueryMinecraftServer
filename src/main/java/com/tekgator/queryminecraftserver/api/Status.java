@@ -48,11 +48,9 @@ public class Status {
         }
     }
 
-
     public OldForgeData getOldForgeMods() {
         return this.modinfo;
     }
-
 
     public NewForgeData getNewForgeMods() {
         return this.forgeData;
@@ -185,6 +183,16 @@ public class Status {
             return this.sample;
         }
 
+        @Override
+        public String toString() {
+            return "Players{" +
+                    "max=" + max +
+                    ", online=" + online +
+                    ", sample=" + Arrays.toString(sample) +
+                    '}';
+        }
+
+
         public static class Player {
 
             private String name;
@@ -208,15 +216,6 @@ public class Status {
 
         }
 
-        @Override
-        public String toString() {
-            return "Players{" +
-                    "max=" + max +
-                    ", online=" + online +
-                    ", sample=" + Arrays.toString(sample) +
-                    '}';
-        }
-
     }
 
     public static class OldForgeData {
@@ -231,6 +230,15 @@ public class Status {
         public Mod[] getMod() {
             return this.modList;
         }
+
+        @Override
+        public String toString() {
+            return "Mods{" +
+                    "type='" + type + '\'' +
+                    ", modList=" + Arrays.toString(modList) +
+                    '}';
+        }
+
 
         public static class Mod {
 
@@ -255,14 +263,6 @@ public class Status {
 
         }
 
-        @Override
-        public String toString() {
-            return "Mods{" +
-                    "type='" + type + '\'' +
-                    ", modList=" + Arrays.toString(modList) +
-                    '}';
-        }
-
     }
 
     public static class NewForgeData {
@@ -282,6 +282,16 @@ public class Status {
         public int getFmlNetworkVersion() {
             return this.fmlNetworkVersion;
         }
+
+        @Override
+        public String toString() {
+            return "NewForgeData{" +
+                    "channels=" + Arrays.toString(channels) +
+                    ", mods=" + Arrays.toString(mods) +
+                    ", fmlNetworkVersion=" + fmlNetworkVersion +
+                    '}';
+        }
+
 
         public static class Channel {
 
@@ -333,15 +343,6 @@ public class Status {
                         '}';
             }
 
-        }
-
-        @Override
-        public String toString() {
-            return "NewForgeData{" +
-                    "channels=" + Arrays.toString(channels) +
-                    ", mods=" + Arrays.toString(mods) +
-                    ", fmlNetworkVersion=" + fmlNetworkVersion +
-                    '}';
         }
 
     }
