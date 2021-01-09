@@ -14,29 +14,30 @@ public class Status {
     private Players players;
     private String description;
     private String favicon;
-    private Mods modinfo;
+    private OldForgeData modinfo;
+    private NewForgeData forgeData;
     private String gametype;
     private String map;
     private boolean nintendoLimited; //Bedrock only
 
     public Server getServer() {
-        return server;
+        return this.server;
     }
 
     public Version getVersion() {
-        return version;
+        return this.version;
     }
 
     public Players getPlayers() {
-        return players;
+        return this.players;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public String getFavIcon() {
-        return favicon;
+        return this.favicon;
     }
 
     public String getFavIconStripped() {
@@ -48,8 +49,13 @@ public class Status {
     }
 
 
-    public Mods getMods() {
-        return modinfo;
+    public OldForgeData getOldForgeMods() {
+        return this.modinfo;
+    }
+
+
+    public NewForgeData getNewForgeMods() {
+        return this.forgeData;
     }
 
     public boolean isNintendoLimited() {
@@ -57,11 +63,11 @@ public class Status {
     }
 
     public String getMap() {
-        return map;
+        return this.map;
     }
 
     public String getGameType() {
-        return gametype;
+        return this.gametype;
     }
 
     public String toJson() {
@@ -77,6 +83,7 @@ public class Status {
                 ", description='" + description + '\'' +
                 ", favicon='" + favicon + '\'' +
                 ", modinfo=" + modinfo +
+                ", forgeData=" + forgeData +
                 ", gametype='" + gametype + '\'' +
                 ", map='" + map + '\'' +
                 ", nintendoLimited=" + nintendoLimited +
@@ -95,27 +102,27 @@ public class Status {
         private long serverId;
 
         public String getTargetHostName() {
-            return targethostname;
+            return this.targethostname;
         }
 
         public String getHostName() {
-            return hostname;
+            return this.hostname;
         }
 
         public int getPort() {
-            return port;
+            return this.port;
         }
 
         public int getQueryPort() {
-            return queryport;
+            return this.queryport;
         }
 
         public int getLatency() {
-            return latency;
+            return this.latency;
         }
 
         public String getIpAddress() {
-            return ipaddress;
+            return this.ipaddress;
         }
 
         public long getServerId() {
@@ -143,11 +150,11 @@ public class Status {
         private int protocol;
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public int getProtocol() {
-            return protocol;
+            return this.protocol;
         }
 
         @Override
@@ -167,15 +174,15 @@ public class Status {
         private Player[] sample;
 
         public int getOnlinePlayers() {
-            return online;
+            return this.online;
         }
 
         public int getMaxPlayers() {
-            return max;
+            return this.max;
         }
 
         public Player[] getPlayer() {
-            return sample;
+            return this.sample;
         }
 
         public static class Player {
@@ -184,11 +191,11 @@ public class Status {
             private String id;
 
             public String getName() {
-                return name;
+                return this.name;
             }
 
             public String getID() {
-                return id;
+                return this.id;
             }
 
             @Override
@@ -212,17 +219,17 @@ public class Status {
 
     }
 
-    public static class Mods {
+    public static class OldForgeData {
 
         private String type;
         private Mod[] modList;
 
         public String getType() {
-            return type;
+            return this.type;
         }
 
         public Mod[] getMod() {
-            return modList;
+            return this.modList;
         }
 
         public static class Mod {
@@ -231,11 +238,11 @@ public class Status {
             private String version;
 
             public String getVersion() {
-                return version;
+                return this.version;
             }
 
             public String getModID() {
-                return modid;
+                return this.modid;
             }
 
             @Override
@@ -253,6 +260,87 @@ public class Status {
             return "Mods{" +
                     "type='" + type + '\'' +
                     ", modList=" + Arrays.toString(modList) +
+                    '}';
+        }
+
+    }
+
+    public static class NewForgeData {
+
+        private Channel[] channels;
+        private Mod[] mods;
+        private int fmlNetworkVersion;
+
+        public Channel[] getChannels() {
+            return this.channels;
+        }
+
+        public Mod[] getMods() {
+            return this.mods;
+        }
+
+        public int getFmlNetworkVersion() {
+            return this.fmlNetworkVersion;
+        }
+
+        public static class Channel {
+
+            private String res;
+            private String version;
+            private boolean required;
+
+            public String getName() {
+                return this.res;
+            }
+
+            public String getVersion() {
+                return this.version;
+            }
+
+            public boolean isRequired() {
+                return this.required;
+            }
+
+            @Override
+            public String toString() {
+                return "Channel{" +
+                        "res='" + res + '\'' +
+                        ", version='" + version + '\'' +
+                        ", required=" + required +
+                        '}';
+            }
+
+        }
+
+        public static class Mod {
+
+            private String modId;
+            private String modmarker;
+
+            public String getModId() {
+                return this.modId;
+            }
+
+            public String getVersion() {
+                return this.modmarker;
+            }
+
+            @Override
+            public String toString() {
+                return "Mod{" +
+                        "modId='" + modId + '\'' +
+                        ", modmarker='" + modmarker + '\'' +
+                        '}';
+            }
+
+        }
+
+        @Override
+        public String toString() {
+            return "NewForgeData{" +
+                    "channels=" + Arrays.toString(channels) +
+                    ", mods=" + Arrays.toString(mods) +
+                    ", fmlNetworkVersion=" + fmlNetworkVersion +
                     '}';
         }
 
