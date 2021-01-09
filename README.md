@@ -13,8 +13,7 @@ utilize the [UT3 (or GameSpot) Query Protocol](https://wiki.vg/Query)
 
 ## Features
 - Easy to use with just one line of code
-- Support for newest Minecraft server version
-- **NO** requirement for plugin, RCON or to enable Query on the server, it works straight out of the box on every Minecraft server in TCP mode.
+- **NO** requirement for plugin, RCON or to enable Query on the server, it works straight out of the box on every Minecraft server in TCP and UDP mode.
 - Retrieves online player names
 - [SRV record lookup](https://www.namecheap.com/support/knowledgebase/article.aspx/9765/2208/how-can-i-link-my-domain-name-to-a-minecraft-server): No need to know the exact port of the Minecraft server if a SRV record is configured
 - Support every Minecraft Version to date which has pinging
