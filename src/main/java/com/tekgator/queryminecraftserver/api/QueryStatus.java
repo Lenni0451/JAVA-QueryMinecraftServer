@@ -88,7 +88,12 @@ public final class QueryStatus {
          * @param hostName or ip address of the Minecraft Server
          */
         public Builder(String hostName) {
-            this.hostName = hostName;
+            String[] parts = hostName.split(":");
+            this.hostName = parts[0];
+            try {
+                this.port = Integer.parseInt(parts[1]);
+            } catch (Throwable ignored) {
+            }
         }
 
         /**
