@@ -60,11 +60,13 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
             if (this.protocol.equals(Protocol.TCP_1_6)) {
                 handshake.writeByte(0xFA); // packet identifier for a plugin message
                 handshake.writeShort(mcPingStr.length()); // length of following string
-                handshake.writeBytes(new String(mcPingStr.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_16BE)); // the string "MC|PingHost" encoded as a UTF-16BE string
+                for (char c : mcPingStr.toCharArray())
+                    handshake.writeChar(c); // the string "MC|PingHost" encoded as a UTF-16BE string
                 handshake.writeShort(7 + (2 * this.serverDNS.getTargetHostName().length())); // length of the rest of the data, as a short. Compute as 7 + 2*len(hostname)
                 handshake.writeByte(this.protocol.getProtocolId()); // protocol version
                 handshake.writeShort(this.serverDNS.getTargetHostName().length()); // length of the hostname
-                handshake.writeBytes(new String(this.serverDNS.getTargetHostName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_16BE)); // hostname the client is connecting to
+                for (char c : this.serverDNS.getTargetHostName().toCharArray())
+                    handshake.writeChar(c); // hostname the client is connecting to
                 handshake.writeInt(this.serverDNS.getPort()); // port the client is connecting to, as an int.
             }
 
