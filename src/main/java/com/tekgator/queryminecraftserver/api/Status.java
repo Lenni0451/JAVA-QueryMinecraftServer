@@ -18,7 +18,7 @@ public class Status {
     private ForgeData forgeData;
     private String gametype;
     private String map;
-    private boolean nintendoLimited; //Bedrock only
+    private Boolean nintendoLimited; //Bedrock only
 
     public Server getServer() {
         return this.server;
@@ -56,16 +56,16 @@ public class Status {
         return this.forgeData;
     }
 
-    public boolean isNintendoLimited() {
-        return this.nintendoLimited;
+    public String getGameType() {
+        return this.gametype;
     }
 
     public String getMap() {
         return this.map;
     }
 
-    public String getGameType() {
-        return this.gametype;
+    public Boolean isNintendoLimited() {
+        return this.nintendoLimited;
     }
 
     public String toJson() {
