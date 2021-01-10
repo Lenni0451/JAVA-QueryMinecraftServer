@@ -14,8 +14,8 @@ public class Status {
     private Players players;
     private String description;
     private String favicon;
-    private OldForgeData modinfo;
-    private NewForgeData forgeData;
+    private ModInfo modinfo;
+    private ForgeData forgeData;
     private String gametype;
     private String map;
     private boolean nintendoLimited; //Bedrock only
@@ -48,11 +48,11 @@ public class Status {
         }
     }
 
-    public OldForgeData getOldForgeMods() {
+    public ModInfo getModinfo() {
         return this.modinfo;
     }
 
-    public NewForgeData getNewForgeMods() {
+    public ForgeData getForgeData() {
         return this.forgeData;
     }
 
@@ -218,7 +218,7 @@ public class Status {
 
     }
 
-    public static class OldForgeData {
+    public static class ModInfo {
 
         private String type;
         private Mod[] modList;
@@ -265,7 +265,7 @@ public class Status {
 
     }
 
-    public static class NewForgeData {
+    public static class ForgeData {
 
         private Channel[] channels;
         private Mod[] mods;
