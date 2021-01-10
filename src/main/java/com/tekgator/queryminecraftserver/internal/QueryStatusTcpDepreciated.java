@@ -86,9 +86,7 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
         try {
             int id = dataInputStream.readUnsignedByte();
 
-            if (id == -1) {
-                throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, "Premature end of stream");
-            } else if (id != 0xFF) {
+            if (id != 0xFF) {
                 //we want a status response
                 throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, String.format("Invalid packetID: %d", id));
             }
@@ -98,9 +96,7 @@ public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
 
             int length = this.dataInputStream.readUnsignedShort();
 
-            if (length == -1) {
-                throw new QueryException(QueryException.ErrorType.NETWORK_PROBLEM, "Premature end of stream");
-            } else if (length == 0) {
+            if (length == 0) {
                 throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Invalid length of response");
             }
 

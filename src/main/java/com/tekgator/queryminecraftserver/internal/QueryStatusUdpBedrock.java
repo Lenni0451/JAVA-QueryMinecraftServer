@@ -4,13 +4,11 @@ import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
 import com.tekgator.queryminecraftserver.api.Status;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -77,8 +75,10 @@ public class QueryStatusUdpBedrock extends QueryStatusBase {
             } else {
                 throw new IllegalStateException("Invalid response (" + packetId + ")");
             }
-        } catch (Throwable t) {
-
+        } catch (SocketTimeoutException e) {
+            throw new QueryException(QueryException.ErrorType.TIMEOUT_REACHED);
+        } catch (IOException e) {
+            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
         } finally {
             if (socket != null) {
                 socket.close();

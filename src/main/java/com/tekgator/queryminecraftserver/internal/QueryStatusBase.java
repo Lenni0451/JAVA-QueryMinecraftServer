@@ -57,7 +57,7 @@ public abstract class QueryStatusBase {
         int i = 0;
         int j = 0;
         int k;
-        while (true) {
+        do {
             try {
                 k = in.readByte();
             } catch (IOException e) {
@@ -65,8 +65,7 @@ public abstract class QueryStatusBase {
             }
             i |= (k & 0x7F) << j++ * 7;
             if (j > 5) throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "VarInt too big");
-            if ((k & 0x80) != 128) break;
-        }
+        } while ((k & 0x80) == 128);
         return i;
     }
 

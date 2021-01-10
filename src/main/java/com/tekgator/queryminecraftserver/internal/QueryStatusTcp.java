@@ -127,8 +127,7 @@ public class QueryStatusTcp extends QueryStatusTcpBase {
         try {
             dataInputStream.readFully(byteStream);  //read json string
         } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
         }
 
         return new String(byteStream);

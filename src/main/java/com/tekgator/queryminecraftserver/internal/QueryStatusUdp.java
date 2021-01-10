@@ -20,9 +20,7 @@ import java.util.Random;
 public class QueryStatusUdp extends QueryStatusBase {
 
     private static final byte[] MAGIC_BYTES = {(byte) 0xFE, (byte) 0xFD};
-    private static final byte[] MAGIC_BYTES_FULLSTAT = {(byte) 0x73, (byte) 0x70, (byte) 0x6C,
-            (byte) 0x69, (byte) 0x74, (byte) 0x6E, (byte) 0x75, (byte) 0x6D,
-            (byte) 0x00, (byte) 0x80, (byte) 0x00};
+    private static final byte[] MAGIC_BYTES_FULLSTAT = {(byte) 0x73, (byte) 0x70, (byte) 0x6C, (byte) 0x69, (byte) 0x74, (byte) 0x6E, (byte) 0x75, (byte) 0x6D, (byte) 0x00, (byte) 0x80, (byte) 0x00};
 
     private static final byte HANDSHAKE_BYTE = 0x9;
     private static final byte STAT_BYTE = 0x0;
@@ -132,15 +130,11 @@ public class QueryStatusUdp extends QueryStatusBase {
             int sessionIdRcv = d.readInt();
 
             if (sessionIdRcv != this.sessionId) {
-                throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                        String.format("Session ID received '%d' is " +
-                                "different from sent '%d'", sessionIdRcv, this.sessionId));
+                throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, String.format("Session ID received '%d' is different from sent '%d'", sessionIdRcv, this.sessionId));
             }
 
             if (msgTypeRcv != getMessageByte(isHandshake)) {
-                throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                        String.format("Message type received '%d' is " +
-                                "different from sent '%d'", msgTypeRcv, getMessageByte(isHandshake)));
+                throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, String.format("Message type received '%d' is different from sent '%d'", msgTypeRcv, getMessageByte(isHandshake)));
             }
 
             if (!isHandshake && protocol == Protocol.UDP_FULL) {
@@ -150,8 +144,7 @@ public class QueryStatusUdp extends QueryStatusBase {
                 // According to https://wiki.vg/Query this is now meaningless and can be ignored
                 // so in case this will cause an error later on this code can be removed
                 if (!Arrays.equals(fullStatCheck, MAGIC_BYTES_FULLSTAT)) {
-                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                            "Expected data stream is invalid, missing magic bytes for full stat!");
+                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Expected data stream is invalid, missing magic bytes for full stat!");
                 }
             }
 
@@ -162,8 +155,7 @@ public class QueryStatusUdp extends QueryStatusBase {
                 try {
                     this.challengeToken = Integer.parseInt(new String(dataBuffer).trim());
                 } catch (NumberFormatException e) {
-                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                            "Invalid challenge token received");
+                    throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Invalid challenge token received");
                 }
 
                 // in case of handshake message calculate and return ping to server
@@ -174,8 +166,7 @@ public class QueryStatusUdp extends QueryStatusBase {
         } catch (SocketTimeoutException e) {
             throw new QueryException(QueryException.ErrorType.TIMEOUT_REACHED);
         } catch (IOException e) {
-            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE,
-                    "Server returned invalid response!");
+            throw new QueryException(QueryException.ErrorType.INVALID_RESPONSE, "Server returned invalid response!");
         }
 
         return dataBuffer;
