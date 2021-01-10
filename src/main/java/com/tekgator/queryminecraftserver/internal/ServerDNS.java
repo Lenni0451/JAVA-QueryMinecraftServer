@@ -38,7 +38,7 @@ public class ServerDNS {
         this.hostName = this.targetHostName;
         this.port = port;
 
-        if (!Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() && this.port == 0) {
+        if (!Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() && (this.port == 0 || this.port == 25565)) {
             // input is an hostname, but no port submitted, try to resolve via SRV record
             try {
                 SRVRecord srvRecord = (SRVRecord) lookupRecord(SRV_STR + hostName, Type.SRV);
