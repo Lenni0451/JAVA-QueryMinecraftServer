@@ -25,7 +25,6 @@ public class StatusBuilder {
     public static final String JSON_SERVER_SERVER_ID = "serverId";
 
     public static final String JSON_DESCRIPTION = "description";
-    public static final String JSON_DESCRIPTION_TEXT_OBSOLETE = "text";
 
     public static final String JSON_VERSION = "version";
     public static final String JSON_VERSION_NAME = "name";
@@ -52,7 +51,14 @@ public class StatusBuilder {
 
     public static final String JSON_FAVICON = "favicon";
 
+
     private static final Gson gson = new GsonBuilder().create();
+
+    /**
+     * Set this to true if you want to deserialize chat components
+     * which are sent instead of a motd string
+     */
+    public static boolean DESERIALIZE_MOTD_COMPONENTS = false;
 
     private Protocol protocol;
     private ServerDNS serverDNS;
@@ -197,11 +203,14 @@ public class StatusBuilder {
             json = jsonElem.getAsJsonObject();
         }
 
-        if (json.has(JSON_DESCRIPTION) && json.get(JSON_DESCRIPTION).isJsonObject() && json.get(JSON_DESCRIPTION).getAsJsonObject().has(JSON_DESCRIPTION_TEXT_OBSOLETE)) {
-            // BUGFIX: some servers don't return the description straight, therefore fix it here
-            jsonElem = json.get(JSON_DESCRIPTION).getAsJsonObject().get(JSON_DESCRIPTION_TEXT_OBSOLETE);
-            json.remove(JSON_DESCRIPTION);
-            json.addProperty(JSON_DESCRIPTION, jsonElem.getAsString());
+        if (json.has(JSON_DESCRIPTION) && json.get(JSON_DESCRIPTION).isJsonObject()) {
+            // Some servers return their description as a chat component so we need to convert it to a text here
+            jsonElem = json.remove(JSON_DESCRIPTION);
+            if (DESERIALIZE_MOTD_COMPONENTS) {
+                json.addProperty(JSON_DESCRIPTION, BasicComponentDeserializer.deserialize(jsonElem));
+            } else {
+                json.addProperty(JSON_DESCRIPTION, gson.toJson(jsonElem));
+            }
         }
 
         addHostInfoToJson(json);
