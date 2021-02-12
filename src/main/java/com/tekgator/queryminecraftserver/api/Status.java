@@ -227,7 +227,7 @@ public class Status {
             return this.type;
         }
 
-        public Mod[] getMod() {
+        public Mod[] getMods() {
             return this.modList;
         }
 
@@ -237,30 +237,6 @@ public class Status {
                     "type='" + type + '\'' +
                     ", modList=" + Arrays.toString(modList) +
                     '}';
-        }
-
-
-        public static class Mod {
-
-            private String modid;
-            private String version;
-
-            public String getVersion() {
-                return this.version;
-            }
-
-            public String getModID() {
-                return this.modid;
-            }
-
-            @Override
-            public String toString() {
-                return "Mod{" +
-                        "modid='" + modid + '\'' +
-                        ", version='" + version + '\'' +
-                        '}';
-            }
-
         }
 
     }
@@ -322,27 +298,27 @@ public class Status {
 
         }
 
-        public static class Mod {
+    }
 
-            private String modId;
-            private String modmarker;
+    public static class Mod {
 
-            public String getModId() {
-                return this.modId;
-            }
+        private String modid;
+        private String version;
 
-            public String getVersion() {
-                return this.modmarker;
-            }
+        public String getVersion() {
+            return this.version;
+        }
 
-            @Override
-            public String toString() {
-                return "Mod{" +
-                        "modId='" + modId + '\'' +
-                        ", modmarker='" + modmarker + '\'' +
-                        '}';
-            }
+        public String getModID() {
+            return this.modid;
+        }
 
+        @Override
+        public String toString() {
+            return "Mod{" +
+                    "modid='" + modid + '\'' +
+                    ", version='" + version + '\'' +
+                    '}';
         }
 
     }
