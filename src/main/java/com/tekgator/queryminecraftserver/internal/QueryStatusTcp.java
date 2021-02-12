@@ -7,6 +7,7 @@ import com.tekgator.queryminecraftserver.api.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Proxy;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -14,8 +15,8 @@ import java.io.IOException;
  */
 public class QueryStatusTcp extends QueryStatusTcpBase {
 
-    public QueryStatusTcp(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
-        super(protocol, serverDNS, timeOut);
+    public QueryStatusTcp(final Protocol protocol, final ServerDNS serverDNS, final int timeOut, final Proxy proxy) {
+        super(protocol, serverDNS, timeOut, proxy);
     }
 
     @Override

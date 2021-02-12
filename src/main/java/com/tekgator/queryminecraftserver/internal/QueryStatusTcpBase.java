@@ -4,12 +4,15 @@ import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
 
 import java.io.*;
+import java.net.Proxy;
 import java.net.Socket;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
  */
 public abstract class QueryStatusTcpBase extends QueryStatusBase {
+
+    protected final Proxy proxy;
 
     protected Socket socket = null;
     protected OutputStream outputStream;
@@ -18,13 +21,14 @@ public abstract class QueryStatusTcpBase extends QueryStatusBase {
     protected InputStream inputStream;
     protected DataInputStream dataInputStream;
 
-    public QueryStatusTcpBase(final Protocol protocol, final ServerDNS serverDNS, final int timeOut) {
+    public QueryStatusTcpBase(final Protocol protocol, final ServerDNS serverDNS, final int timeOut, final Proxy proxy) {
         super(protocol, serverDNS, timeOut);
+        this.proxy = proxy;
     }
 
     protected void connect() throws QueryException {
         try {
-            this.socket = new Socket();
+            this.socket = new Socket(Proxy.NO_PROXY);
 
             // connect to server
             this.socket.setSoTimeout(this.timeOut);

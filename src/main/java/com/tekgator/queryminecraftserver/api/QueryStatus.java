@@ -2,14 +2,17 @@ package com.tekgator.queryminecraftserver.api;
 
 import com.tekgator.queryminecraftserver.internal.*;
 
+import java.net.Proxy;
+
 /**
  * @author Patrick Weiss <info@tekgator.com>
  */
 public final class QueryStatus {
 
     private final ServerDNS serverDNS;
-    private final Protocol protocol;
     private final int timeOut;
+    private final Protocol protocol;
+    private final Proxy proxy;
 
     private Status status;
 
@@ -17,6 +20,7 @@ public final class QueryStatus {
         this.serverDNS = (builder.skipResolve || builder.protocol.equals(Protocol.TCP_1_2)) ? new ServerDNS.NoResolveServerDNS(builder.hostName, builder.port) : new ServerDNS(builder.hostName, builder.port);
         this.timeOut = builder.timeOut;
         this.protocol = builder.protocol;
+        this.proxy = builder.proxy;
     }
 
     /**
@@ -45,14 +49,14 @@ public final class QueryStatus {
         switch (this.protocol) {
             case TCP_1_2:
             case TCP_1_3:
-                this.status = new QueryStatusTcpLegacy(this.protocol, this.serverDNS, this.timeOut).getStatus();
+                this.status = new QueryStatusTcpLegacy(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
                 break;
             case TCP_1_6:
             case TCP_1_5:
-                this.status = new QueryStatusTcpDepreciated(this.protocol, this.serverDNS, this.timeOut).getStatus();
+                this.status = new QueryStatusTcpDepreciated(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
                 break;
             case TCP:
-                this.status = new QueryStatusTcp(this.protocol, this.serverDNS, this.timeOut).getStatus();
+                this.status = new QueryStatusTcp(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
                 break;
             case UDP_BASIC:
             case UDP_FULL:
@@ -81,6 +85,7 @@ public final class QueryStatus {
         private boolean skipResolve;
         private int timeOut = 1000;
         private Protocol protocol = Protocol.TCP;
+        private Proxy proxy = Proxy.NO_PROXY;
 
         /**
          * Constructor of the builder class
@@ -208,6 +213,16 @@ public final class QueryStatus {
          */
         public Builder setTimeout(int timeOut) {
             this.timeOut = timeOut;
+            return this;
+        }
+
+        /**
+         * Set the proxy used to connect
+         *
+         * @param proxy The proxy to use for the connections
+         */
+        public Builder setProxy(Proxy proxy) {
+            this.proxy = proxy;
             return this;
         }
 
