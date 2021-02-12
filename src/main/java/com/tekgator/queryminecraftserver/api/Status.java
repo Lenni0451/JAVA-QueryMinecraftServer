@@ -3,6 +3,7 @@ package com.tekgator.queryminecraftserver.api;
 import com.google.gson.Gson;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Patrick Weiss <info@tekgator.com>
@@ -88,6 +89,19 @@ public class Status {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Status status = (Status) o;
+        return Objects.equals(server, status.server) && Objects.equals(version, status.version) && Objects.equals(players, status.players) && Objects.equals(description, status.description) && Objects.equals(favicon, status.favicon) && Objects.equals(modinfo, status.modinfo) && Objects.equals(forgeData, status.forgeData) && Objects.equals(gametype, status.gametype) && Objects.equals(map, status.map) && Objects.equals(nintendoLimited, status.nintendoLimited);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(server, version, players, description, favicon, modinfo, forgeData, gametype, map, nintendoLimited);
+    }
+
 
     public static class Server {
 
@@ -140,6 +154,19 @@ public class Status {
                     '}';
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Server server = (Server) o;
+            return port == server.port && queryport == server.queryport && latency == server.latency && serverId == server.serverId && Objects.equals(targethostname, server.targethostname) && Objects.equals(hostname, server.hostname) && Objects.equals(ipaddress, server.ipaddress);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(targethostname, hostname, ipaddress, port, queryport, latency, serverId);
+        }
+
     }
 
     public static class Version {
@@ -161,6 +188,19 @@ public class Status {
                     "name='" + name + '\'' +
                     ", protocol=" + protocol +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Version version = (Version) o;
+            return protocol == version.protocol && Objects.equals(name, version.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, protocol);
         }
 
     }
@@ -192,6 +232,21 @@ public class Status {
                     '}';
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Players players = (Players) o;
+            return max == players.max && online == players.online && Arrays.equals(sample, players.sample);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(max, online);
+            result = 31 * result + Arrays.hashCode(sample);
+            return result;
+        }
+
 
         public static class Player {
 
@@ -212,6 +267,19 @@ public class Status {
                         "name='" + name + '\'' +
                         ", id='" + id + '\'' +
                         '}';
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Player player = (Player) o;
+                return Objects.equals(name, player.name) && Objects.equals(id, player.id);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(name, id);
             }
 
         }
@@ -237,6 +305,21 @@ public class Status {
                     "type='" + type + '\'' +
                     ", modList=" + Arrays.toString(modList) +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ModInfo modInfo = (ModInfo) o;
+            return Objects.equals(type, modInfo.type) && Arrays.equals(modList, modInfo.modList);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(type);
+            result = 31 * result + Arrays.hashCode(modList);
+            return result;
         }
 
     }
@@ -268,6 +351,22 @@ public class Status {
                     '}';
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ForgeData forgeData = (ForgeData) o;
+            return fmlNetworkVersion == forgeData.fmlNetworkVersion && Arrays.equals(channels, forgeData.channels) && Arrays.equals(mods, forgeData.mods);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(fmlNetworkVersion);
+            result = 31 * result + Arrays.hashCode(channels);
+            result = 31 * result + Arrays.hashCode(mods);
+            return result;
+        }
+
 
         public static class Channel {
 
@@ -296,6 +395,19 @@ public class Status {
                         '}';
             }
 
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Channel channel = (Channel) o;
+                return required == channel.required && Objects.equals(res, channel.res) && Objects.equals(version, channel.version);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(res, version, required);
+            }
+
         }
 
     }
@@ -319,6 +431,19 @@ public class Status {
                     "modid='" + modid + '\'' +
                     ", version='" + version + '\'' +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Mod mod = (Mod) o;
+            return Objects.equals(modid, mod.modid) && Objects.equals(version, mod.version);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(modid, version);
         }
 
     }
