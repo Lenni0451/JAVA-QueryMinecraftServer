@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ModInfo {
+public class ModInfo implements IModContainer {
 
     @SerializedName("type")
     private String type;
@@ -16,6 +16,7 @@ public class ModInfo {
         return this.type;
     }
 
+    @Override
     public Mod[] getModList() {
         return this.modList;
     }

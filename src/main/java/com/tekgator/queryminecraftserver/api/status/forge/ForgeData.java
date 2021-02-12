@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ForgeData {
+public class ForgeData implements IModContainer {
 
     @SerializedName("channels")
     private Channel[] channels;
@@ -18,6 +18,7 @@ public class ForgeData {
         return this.channels;
     }
 
+    @Override
     public Mod[] getMods() {
         return this.mods;
     }
