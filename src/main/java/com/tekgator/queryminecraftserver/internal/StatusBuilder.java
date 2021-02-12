@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.tekgator.queryminecraftserver.api.BedrockPong;
 import com.tekgator.queryminecraftserver.api.Protocol;
 import com.tekgator.queryminecraftserver.api.QueryException;
-import com.tekgator.queryminecraftserver.api.Status;
+import com.tekgator.queryminecraftserver.api.status.Status;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

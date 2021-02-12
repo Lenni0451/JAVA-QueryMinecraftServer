@@ -1,5 +1,6 @@
 package com.tekgator.queryminecraftserver.api;
 
+import com.tekgator.queryminecraftserver.api.status.Status;
 import com.tekgator.queryminecraftserver.internal.*;
 
 import java.net.Proxy;
