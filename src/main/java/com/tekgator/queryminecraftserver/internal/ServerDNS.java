@@ -22,23 +22,24 @@ public class ServerDNS {
     private int port = 0;
     private int queryPort = 0;
 
-    private ServerDNS() {
+    public ServerDNS(final String hostName) throws QueryException {
+        this(hostName, DEFAULT_PORT);
     }
 
     public ServerDNS(final String hostName, final int port) throws QueryException {
-        resolve(hostName, port);
+        this(hostName, port, true);
     }
 
-    public ServerDNS(final String hostName) throws QueryException {
-        resolve(hostName, 0);
+    public ServerDNS(final String hostName, final int port, final boolean srvLookup) throws QueryException {
+        resolve(hostName, port, srvLookup);
     }
 
-    private void resolve(final String hostName, final int port) throws QueryException {
+    private void resolve(final String hostName, final int port, final boolean srvLookup) throws QueryException {
         this.targetHostName = hostName;
         this.hostName = this.targetHostName;
         this.port = port;
 
-        if (!Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() && (this.port == 0 || this.port == 25565)) {
+        if (srvLookup && !Pattern.compile(IP4_PATTERN).matcher(this.targetHostName).matches() && (this.port == 0 || this.port == 25565)) {
             // input is an hostname, but no port submitted, try to resolve via SRV record
             try {
                 SRVRecord srvRecord = (SRVRecord) lookupRecord(SRV_STR + hostName, Type.SRV);
@@ -134,54 +135,6 @@ public class ServerDNS {
 
     public void setQueryPort(final int queryPort) throws IllegalArgumentException {
         this.queryPort = validatePort(queryPort);
-    }
-
-
-    public static class NoResolveServerDNS extends ServerDNS {
-
-        private final String hostName;
-        private int port;
-
-        public NoResolveServerDNS(final String hostName, final int port) {
-            this.hostName = hostName;
-            this.port = port;
-        }
-
-        public NoResolveServerDNS(final String hostName) {
-            if (hostName.split(":").length == 2) {
-                this.hostName = hostName.split(":")[0];
-                this.port = Integer.parseInt(hostName.split(":")[1]);
-            } else {
-                this.hostName = hostName;
-                this.port = 25565;
-            }
-        }
-
-        @Override
-        public String getTargetHostName() {
-            return this.hostName;
-        }
-
-        @Override
-        public String getHostName() {
-            return this.hostName;
-        }
-
-        @Override
-        public String getIpAddress() {
-            return super.getIpAddress();
-        }
-
-        @Override
-        public int getPort() {
-            return this.port;
-        }
-
-        @Override
-        public void setPort(int port) {
-            this.port = port;
-        }
-
     }
 
 }

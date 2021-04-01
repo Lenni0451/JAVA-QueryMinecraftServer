@@ -18,7 +18,7 @@ public final class QueryStatus {
     private Status status;
 
     private QueryStatus(Builder builder) throws QueryException {
-        this.serverDNS = (builder.skipResolve || builder.protocol.equals(Protocol.TCP_1_2)) ? new ServerDNS.NoResolveServerDNS(builder.hostName, builder.port) : new ServerDNS(builder.hostName, builder.port);
+        this.serverDNS = (builder.skipResolve || builder.protocol.equals(Protocol.TCP_1_2)) ? new ServerDNS(builder.hostName, builder.port, false) : new ServerDNS(builder.hostName, builder.port);
         this.timeOut = builder.timeOut;
         this.protocol = builder.protocol;
         this.proxy = builder.proxy;

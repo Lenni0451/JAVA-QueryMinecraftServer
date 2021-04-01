@@ -126,11 +126,16 @@ public class StatusBuilder {
     private Status buildTcpLegacy() {
         JsonObject json = new JsonObject();
         JsonObject playersJson = new JsonObject();
+        JsonObject versionJson = new JsonObject();
         json.addProperty(JSON_DESCRIPTION, this.dataTcp.split("§")[0]);
 
         playersJson.addProperty(JSON_PLAYERS_MAX, Integer.valueOf(this.dataTcp.split("§")[2]));
         playersJson.addProperty(JSON_PLAYERS_ONLINE, this.dataTcp.split("§")[1]);
         json.add(JSON_PLAYERS, playersJson);
+
+        versionJson.addProperty(JSON_VERSION_NAME, "Unknown (Legacy)");
+        versionJson.addProperty(JSON_VERSION_PROTOCOL, this.protocol.getProtocolId());
+        json.add(JSON_VERSION, versionJson);
 
         addHostInfoToJson(json);
 
