@@ -3,6 +3,7 @@ package com.tekgator.queryminecraftserver.internal;
 import com.tekgator.queryminecraftserver.api.QueryException;
 import org.xbill.DNS.*;
 
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 
@@ -13,6 +14,7 @@ public class ServerDNS {
 
     private static final String IP4_PATTERN = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
+    public static String DNS_IP = null;
     private static final int DEFAULT_PORT = 25565;
     private static final String SRV_STR = "_minecraft._tcp.";
 
@@ -74,7 +76,8 @@ public class ServerDNS {
 
         try {
             lookup = new Lookup(hostName, type);
-        } catch (TextParseException e) {
+            if (DNS_IP != null) lookup.setResolver(new SimpleResolver(DNS_IP));
+        } catch (TextParseException | UnknownHostException e) {
             throw new QueryException(QueryException.ErrorType.HOST_NOT_FOUND, String.format("Host '%s' parsing error:%s", hostName, e.getMessage()));
         }
 
