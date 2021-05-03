@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
  * @author Patrick Weiss <info@tekgator.com>
  * @see http://wiki.vg/Server_List_Ping#Ping_Process
  */
-public class QueryStatusTcpDepreciated extends QueryStatusTcpBase {
+public class QueryStatusTcpDeprecated extends QueryStatusTcpBase {
 
-    public QueryStatusTcpDepreciated(final Protocol protocol, final ServerDNS serverDNS, final int timeOut, final Proxy proxy) {
+    public QueryStatusTcpDeprecated(final Protocol protocol, final ServerDNS serverDNS, final int timeOut, final Proxy proxy) {
         super(protocol, serverDNS, timeOut, proxy);
     }
 

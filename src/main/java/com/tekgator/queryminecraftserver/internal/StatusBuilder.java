@@ -101,7 +101,7 @@ public class StatusBuilder {
                 break;
             case TCP_1_6:
             case TCP_1_5:
-                status = buildTcpDepreciatedJson();
+                status = buildTcpDeprecatedJson();
                 break;
             case TCP:
                 status = buildTcpJson();
@@ -142,7 +142,7 @@ public class StatusBuilder {
         return gson.fromJson(json, Status.class);
     }
 
-    private Status buildTcpDepreciatedJson() {
+    private Status buildTcpDeprecatedJson() {
         JsonObject json = new JsonObject();
 
         String[] strSplit = this.dataTcp.split("\0");

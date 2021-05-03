@@ -54,7 +54,7 @@ public final class QueryStatus {
                 break;
             case TCP_1_6:
             case TCP_1_5:
-                this.status = new QueryStatusTcpDepreciated(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
+                this.status = new QueryStatusTcpDeprecated(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
                 break;
             case TCP:
                 this.status = new QueryStatusTcp(this.protocol, this.serverDNS, this.timeOut, this.proxy).getStatus();
@@ -146,7 +146,7 @@ public final class QueryStatus {
 
 
         /**
-         * Use Minecraft Protocol TCP depreciated (Minecraft v1.6.4 - v1.6.0)
+         * Use Minecraft Protocol TCP deprecated (Minecraft v1.6.4 - v1.6.0)
          * for Query (method can be used instead setProtocol to
          * drop dependency of Protocol enum
          */
@@ -155,7 +155,7 @@ public final class QueryStatus {
         }
 
         /**
-         * Use Minecraft Protocol TCP depreciated (Minecraft v1.5.2 - v1.4.0)
+         * Use Minecraft Protocol TCP deprecated (Minecraft v1.5.2 - v1.4.0)
          * for Query (method can be used instead setProtocol to
          * drop dependency of Protocol enum
          */
@@ -164,7 +164,7 @@ public final class QueryStatus {
         }
 
         /**
-         * Use Minecraft Protocol TCP depreciated (Minecraft v1.3.2 - v1.3.1)
+         * Use Minecraft Protocol TCP deprecated (Minecraft v1.3.2 - v1.3.1)
          * for Query (method can be used instead setProtocol to
          * drop dependency of Protocol enum
          */
@@ -173,7 +173,7 @@ public final class QueryStatus {
         }
 
         /**
-         * Use Minecraft Protocol TCP depreciated (Minecraft v1.2.5 - b1.8)
+         * Use Minecraft Protocol TCP deprecated (Minecraft v1.2.5 - b1.8)
          * for Query (method can be used instead setProtocol to
          * drop dependency of Protocol enum
          */

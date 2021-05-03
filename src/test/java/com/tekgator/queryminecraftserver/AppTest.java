@@ -54,7 +54,7 @@ public class AppTest {
 
     @Test
     //@Ignore // If no more Minecraft Servers <= 1.6 are available this test has to be deactivated
-    public void TcpQueryDepreciated () {
+    public void TcpQueryDeprecated() {
         try {
             System.out.println("-------------------------------------------------------------");
             System.out.println(new QueryStatus.Builder("69.175.124.74")
@@ -73,7 +73,7 @@ public class AppTest {
 
     @Test
     //@Ignore // If no more Minecraft Servers <= 1.6 are available this test has to be deactivated
-    public void TcpQueryDepreciatedMulti () {
+    public void TcpQueryDeprecatedMulti () {
         QueryStatus queryStatus;
         
         try {
